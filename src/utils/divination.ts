@@ -27,6 +27,21 @@ export const shichenMap: Record<string, number> = {
 
 export const shichenNames = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
 
+export const shichenTimeMap = [
+  { name: "子", start: 23, end: 1 },
+  { name: "丑", start: 1, end: 3 },
+  { name: "寅", start: 3, end: 5 },
+  { name: "卯", start: 5, end: 7 },
+  { name: "辰", start: 7, end: 9 },
+  { name: "巳", start: 9, end: 11 },
+  { name: "午", start: 11, end: 13 },
+  { name: "未", start: 13, end: 15 },
+  { name: "申", start: 15, end: 17 },
+  { name: "酉", start: 17, end: 19 },
+  { name: "戌", start: 19, end: 21 },
+  { name: "亥", start: 21, end: 23 }
+];
+
 export interface DivinationResult {
   solarDate: string;
   lunarDate: string;
@@ -142,17 +157,20 @@ export function getFutureGua(days: number = 3): FutureGuaDay[] {
     
     const dayResults: FutureGuaItem[] = [];
     
-    for (let hour = 0; hour < 24; hour += 2) {
+    for (let i = 0; i < shichenTimeMap.length; i++) {
+      const shichenInfo = shichenTimeMap[i];
+      const hour = shichenInfo.start === 23 ? 23 : shichenInfo.start;
       const shichenNum = getShichenNumber(hour);
       const guaIndex = getGuaIndex(lunarMonth, lunarDay, shichenNum);
       const gua = guaList[guaIndex];
       
-      const shichenIndex = Math.floor(hour / 2) % 12;
-      const shichenName = shichenNames[shichenIndex] + "时";
+      const timeStr = shichenInfo.start === 23 
+        ? `23:00-01:00` 
+        : `${shichenInfo.start.toString().padStart(2, '0')}:00-${shichenInfo.end.toString().padStart(2, '0')}:00`;
       
       dayResults.push({
-        time: `${hour.toString().padStart(2, '0')}:00-${(hour + 2) % 24 === 0 ? '24' : (hour + 2).toString().padStart(2, '0')}:00`,
-        shichenName,
+        time: timeStr,
+        shichenName: shichenInfo.name + "时",
         gua
       });
     }
