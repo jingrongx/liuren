@@ -41,6 +41,21 @@ export default function Home() {
             六壬占卜
           </h1>
           <p className="text-gray-600 text-lg">传统占卜文化，在线吉凶预测</p>
+          <div className="mt-4">
+            <a 
+              href="https://github.com/jingfangjia/liuren-divination/releases/latest/download/app-release.apk" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-blue-600 text-white rounded-lg hover:from-green-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              下载Android APK
+            </a>
+          </div>
         </header>
 
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 border-2 border-amber-200">
@@ -99,9 +114,11 @@ export default function Home() {
           <FutureGuaTable />
         </div>
 
-        <footer className="mt-12 text-center text-gray-500 text-sm">
+        <footer className="mt-12 text-center text-gray-50 [&>p]:mb-2">
           <p>本程序仅供学习研究使用，请勿用于商业用途</p>
-          <p className="mt-2">抖音ID：1036110286 | 账号名：星樞引路</p>
+          <p>微信搜索关注【经方家AI】，免费获取海量中医经典资料</p>
+          <p>经方家AI望诊+问诊辨证更准确，中医思维真中医</p>
+          <p className="text-blue-600 hover:underline"><a href="https://www.jingfangjia.chat" target="_blank" rel="noopener noreferrer">官网：https://www.jingfangjia.chat</a></p>
         </footer>
       </div>
     </div>
