@@ -56,7 +56,7 @@ export default function Home() {
               官网
             </a>
             <a
-              href="https://ghproxy.net/https://github.com/jingrongx/liuren/releases/latest/download/app-release.apk"
+              href="https://ghproxy.net/https://github.com/jingrongx/liuren/releases/download/1.0.0/app-release.apk"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg hover:from-green-600 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
@@ -69,7 +69,7 @@ export default function Home() {
               国内下载 APK
             </a>
             <a
-              href="https://github.com/jingrongx/liuren/releases/latest/download/app-release.apk"
+              href="https://github.com/jingrongx/liuren/releases/download/1.0.0/app-release.apk"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-900 text-white rounded-lg hover:from-gray-800 hover:to-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
