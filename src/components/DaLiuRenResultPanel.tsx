@@ -130,24 +130,22 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
         <h4 className="font-bold text-gray-800 mb-3">类神取法</h4>
         <div className="space-y-2">
           {leiShenList.filter(ls => ls.zhiList.length > 0).map((ls) => (
-            <div key={ls.name} className="flex items-center gap-2 text-sm">
-              <span className="font-medium text-gray-700 w-16">{ls.name}</span>
-              <span className="text-gray-400">→</span>
-              <span className="flex gap-1">
+            <div key={ls.name} className="flex items-center gap-2 text-sm min-w-full">
+              <div className="font-medium text-gray-700 w-16 shrink-0">{ls.name}</div>
+              <div className="text-gray-400 shrink-0">→</div>
+              <div className="flex gap-1 flex-1 overflow-x-auto whitespace-nowrap py-1">
                 {ls.zhiList.map(z => {
                   const isChu = sanChuan.chu === z;
                   const isZhong = sanChuan.zhong === z;
                   const isMo = sanChuan.mo === z;
                   return (
-                    <span key={z} className={`px-1.5 py-0.5 rounded text-xs ${
-                      isChu || isZhong || isMo ? 'bg-red-100 text-red-700 font-bold' : 'bg-gray-100 text-gray-600'
-                    }`}>
+                    <span key={z} className={`px-1.5 py-0.5 rounded text-xs ${isChu || isZhong || isMo ? 'bg-red-100 text-red-700 font-bold' : 'bg-gray-100 text-gray-600'}`}>
                       {z}{(isChu || isZhong || isMo) && '◆'}
                     </span>
                   );
                 })}
-              </span>
-              <span className="text-xs text-gray-400 ml-auto">{ls.desc.slice(0, 8)}</span>
+              </div>
+              <div className="text-xs text-gray-400 ml-2 shrink-0 max-w-[120px]">{ls.desc.slice(0, 8)}</div>
             </div>
           ))}
         </div>

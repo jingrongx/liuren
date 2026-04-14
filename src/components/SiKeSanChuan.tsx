@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Ke,
   Chuan,
+  DI_ZHI,
   ZHI_WU_XING,
   GAN_WU_XING,
   GAN_JI_GONG,
@@ -18,6 +19,7 @@ interface SiKeSanChuanProps {
   dayGan: string;
   dayZhi: string;
   tianJiangArr: string[];
+  tianPan: string[];
 }
 
 function getWuXingBadge(wuxing: string): string {
@@ -47,136 +49,106 @@ function getGuanxiText(guanxi: string, direction: string): string {
   return guanxi;
 }
 
+function getTianJiangForSiKe(shang: string, tianPan: string[], tianJiangArr: string[]): string {
+  const index = tianPan.indexOf(shang);
+  return tianJiangArr[index] || '';
+}
+
 const SiKeSanChuan: React.FC<SiKeSanChuanProps> = ({
   siKe,
   sanChuan,
   dayGan,
   dayZhi,
   tianJiangArr,
+  tianPan,
 }) => {
   const scTianJiang = getSanChuanTianJiang(sanChuan, tianJiangArr);
   const scWuXing = getSanChuanWuXing(sanChuan);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* 四课 */}
-      <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-amber-200">
-        <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">四课</h3>
-        <div className="space-y-3">
+      <div className="bg-white rounded-xl shadow-lg p-4 border-2 border-amber-200">
+        <h3 className="text-lg font-bold text-gray-800 mb-3 text-center">四课</h3>
+        <div className="grid grid-cols-4 gap-2">
           {siKe.map((ke, i) => {
             const shangWx = ZHI_WU_XING[ke.shang] || '';
             const xiaWx = ZHI_WU_XING[ke.xia] || '';
 
             return (
-              <div key={i} className={`border-2 rounded-lg p-3 ${getGuanxiColor(ke.guanxi, ke.direction)}`}>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="text-sm font-bold text-amber-700">{ke.label}</div>
-                  <div className={`text-xs font-medium ${ke.direction === '上克下' ? 'text-red-600' : ke.direction === '下贼上' ? 'text-orange-600' : ke.direction === '上生下' ? 'text-blue-600' : ke.direction === '下生上' ? 'text-cyan-600' : 'text-gray-500'}`}>
-                    {ke.direction}
+              <div key={i} className={`border rounded-lg p-2 ${getGuanxiColor(ke.guanxi, ke.direction)}`}>
+                <div className="text-center mb-1">
+                  <div className="text-xs font-bold text-amber-700">{i === 0 ? '一课' : i === 1 ? '二课' : i === 2 ? '三课' : '四课'}</div>
+                </div>
+                {/* 天将 */}
+                <div className="text-center mb-1">
+                  <div className="text-xs text-purple-600 font-medium">{getTianJiangForSiKe(ke.shang, tianPan, tianJiangArr)}</div>
+                </div>
+                {/* 上神 */}
+                <div className="text-center mb-1">
+                  <div className={`text-sm font-bold px-2 py-1 rounded ${getWuXingBadge(shangWx)}`}>
+                    {ke.shang}
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-center flex-1">
-                    <div className={`text-2xl font-bold px-3 py-1 rounded ${getWuXingBadge(shangWx)}`}>
-                      {ke.shang}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">{shangWx}</div>
-                  </div>
-                  <div className="text-center">
-                    <div className={`text-lg px-2 py-0.5 rounded text-sm font-medium ${ke.direction === '上克下' || ke.direction === '下贼上' ? 'bg-red-100 text-red-700' : ke.direction === '上生下' || ke.direction === '下生上' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
-                      {getGuanxiText(ke.guanxi, ke.direction)}
-                    </div>
-                    <div className="text-lg text-gray-400 mt-1">↓</div>
-                  </div>
-                  <div className="text-center flex-1">
-                    <div className={`text-lg px-3 py-1 rounded text-gray-600 bg-white border border-gray-200`}>
-                      {ke.xia}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">{xiaWx}</div>
+                {/* 下神 */}
+                <div className="text-center">
+                  <div className={`text-sm font-bold px-2 py-1 rounded bg-white border border-gray-200 text-gray-600`}>
+                    {ke.xia}
                   </div>
                 </div>
               </div>
             );
           })}
         </div>
-        <div className="mt-3 text-xs text-gray-500 text-center">
+        <div className="mt-2 text-xs text-gray-500 text-center">
           日干 {dayGan}（{GAN_WU_XING[dayGan]}·{GAN_YIN_YANG[dayGan]}）寄宫 {GAN_JI_GONG[dayGan]}，日支 {dayZhi}（{ZHI_WU_XING[dayZhi]}）
         </div>
       </div>
 
       {/* 三传 */}
-      <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-indigo-200">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-gray-800">三传</h3>
-          <span className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium">
+      <div className="bg-white rounded-xl shadow-lg p-4 border-2 border-indigo-200">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-lg font-bold text-gray-800">三传</h3>
+          <span className="px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-medium">
             {sanChuan.men}门
           </span>
         </div>
 
-        <div className="flex flex-col items-center gap-3 mb-4">
+        <div className="flex items-center justify-center gap-4 mb-3">
           {/* 初传 */}
-          <div className="text-center w-full max-w-xs">
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-xs text-purple-600 font-medium">{scTianJiang.chu}</div>
-              <div className="text-xs text-gray-500">初传</div>
-            </div>
-            <div className={`text-3xl font-bold px-5 py-3 rounded-lg border-2 border-red-300 ${getWuXingBadge(scWuXing.chu)}`}>
+          <div className="text-center">
+            <div className="text-xs text-gray-500 mb-1">初传</div>
+            <div className={`text-xl font-bold px-3 py-2 rounded border ${getWuXingBadge(scWuXing.chu)}`}>
               {sanChuan.chu}
             </div>
-            <div className="text-xs text-gray-400 mt-1">{scWuXing.chu}</div>
+            <div className="text-xs text-purple-600 mt-1">{scTianJiang.chu}</div>
           </div>
 
-          <div className="text-lg text-gray-400">↓</div>
+          <div className="text-sm text-gray-400">→</div>
 
           {/* 中传 */}
-          <div className="text-center w-full max-w-xs">
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-xs text-purple-600 font-medium">{scTianJiang.zhong}</div>
-              <div className="text-xs text-gray-500">中传</div>
-            </div>
-            <div className={`text-3xl font-bold px-5 py-3 rounded-lg border-2 border-amber-300 ${getWuXingBadge(scWuXing.zhong)}`}>
+          <div className="text-center">
+            <div className="text-xs text-gray-500 mb-1">中传</div>
+            <div className={`text-xl font-bold px-3 py-2 rounded border ${getWuXingBadge(scWuXing.zhong)}`}>
               {sanChuan.zhong}
             </div>
-            <div className="text-xs text-gray-400 mt-1">{scWuXing.zhong}</div>
+            <div className="text-xs text-purple-600 mt-1">{scTianJiang.zhong}</div>
           </div>
 
-          <div className="text-lg text-gray-400">↓</div>
+          <div className="text-sm text-gray-400">→</div>
 
           {/* 末传 */}
-          <div className="text-center w-full max-w-xs">
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-xs text-purple-600 font-medium">{scTianJiang.mo}</div>
-              <div className="text-xs text-gray-500">末传</div>
-            </div>
-            <div className={`text-3xl font-bold px-5 py-3 rounded-lg border-2 border-blue-300 ${getWuXingBadge(scWuXing.mo)}`}>
+          <div className="text-center">
+            <div className="text-xs text-gray-500 mb-1">末传</div>
+            <div className={`text-xl font-bold px-3 py-2 rounded border ${getWuXingBadge(scWuXing.mo)}`}>
               {sanChuan.mo}
             </div>
-            <div className="text-xs text-gray-400 mt-1">{scWuXing.mo}</div>
+            <div className="text-xs text-purple-600 mt-1">{scTianJiang.mo}</div>
           </div>
-        </div>
-
-        {/* 天将详情 */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          {[
-            { label: '初传', name: scTianJiang.chu, chuan: sanChuan.chu },
-            { label: '中传', name: scTianJiang.zhong, chuan: sanChuan.zhong },
-            { label: '末传', name: scTianJiang.mo, chuan: sanChuan.mo },
-          ].map((item) => {
-            const info = getTianJiangInfo(item.name);
-            return (
-              <div key={item.label} className={`text-center p-2 rounded-lg ${info?.nature === '吉' ? 'bg-red-50 border border-red-200' : 'bg-gray-100 border border-gray-300'}`}>
-                <div className="text-xs text-gray-500">{item.label}天将</div>
-                <div className={`font-bold ${info?.nature === '吉' ? 'text-red-700' : 'text-gray-800'}`}>
-                  {item.name}
-                </div>
-                <div className="text-xs text-gray-500">{info?.desc}</div>
-              </div>
-            );
-          })}
         </div>
 
         {/* 取传说明 */}
-        <div className="mt-3 text-sm text-gray-600 bg-indigo-50 rounded-lg p-3">
+        <div className="mt-2 text-xs text-gray-600 bg-indigo-50 rounded p-2">
           <span className="font-medium text-indigo-700">取传方法：</span>
           {sanChuan.desc}
         </div>

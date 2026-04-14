@@ -143,6 +143,7 @@ export default function DaLiuRenPage() {
                 dayGan={result.dayGan}
                 dayZhi={result.dayZhi}
                 tianJiangArr={result.tianJiangArr}
+                tianPan={result.tianPan}
               />
 
               {/* 结果详情 */}
@@ -158,8 +159,8 @@ export default function DaLiuRenPage() {
             <p>大六壬，与太乙神数、奇门遁甲并称"三式"，是中国传统术数中最为高深的预测学之一。其以日干支为基准，月将加时起天盘，取四课定三传，推人事之吉凶。</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
               <div className="bg-indigo-50 rounded-lg p-4">
-                <h4 className="font-bold text-indigo-800 mb-2">天盘</h4>
-                <p className="text-sm text-gray-600">月将加时所得，代表天时运转，外圈为天盘神，反映外在环境与时机。</p>
+                <h4 className="font-bold text-indigo-800 mb-2">天地盘</h4>
+                <p className="text-sm text-gray-600">月将加时起天盘，中圈为天盘神（旋转地支），内圈为地盘（固定地支），外圈为十二天将临位。</p>
               </div>
               <div className="bg-purple-50 rounded-lg p-4">
                 <h4 className="font-bold text-purple-800 mb-2">四课</h4>

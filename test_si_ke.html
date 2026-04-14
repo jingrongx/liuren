@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>四课验证</title>
+    <script type="module">
+        import { calculateDaLiuRen } from './src/utils/daLiuRen.js';
+
+        // 测试当前日期
+        const date = new Date('2026-04-14');
+        const result = calculateDaLiuRen(date);
+
+        console.log('=== 四课数据 ===');
+        result.siKe.forEach((ke, index) => {
+            console.log(`${index + 1}课: 上神=${ke.shang}, 下神=${ke.xia}, 关系=${ke.direction}`);
+        });
+
+        console.log('\n=== 天地盘四课标记 ===');
+        // 模拟天地盘的四课标记逻辑
+        function isSiKe(zhi, siKe) {
+            return siKe.some(ke => ke.shang === zhi || ke.xia === zhi);
+        }
+
+        // 检查哪些地支被标记为四课位置
+        const diZhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+        const siKeZhi = diZhi.filter(zhi => isSiKe(zhi, result.siKe));
+        console.log('四课相关地支:', siKeZhi);
+
+        // 显示结果
+        document.getElementById('result').innerHTML = `
+            <h2>四课数据</h2>
+            <table border="1">
+                <tr><th>课</th><th>上神</th><th>下神</th><th>关系</th></tr>
+                ${result.siKe.map((ke, i) => `
+                    <tr>
+                        <td>${i + 1}课</td>
+                        <td>${ke.shang}</td>
+                        <td>${ke.xia}</td>
+                        <td>${ke.direction}</td>
+                    </tr>
+                `).join('')}
+            </table>
+            <h2>天地盘四课标记</h2>
+            <p>被标记为四课位置的地支: ${siKeZhi.join(', ')}</p>
+        `;
+    </script>
+</head>
+<body>
+    <h1>四课数据验证</h1>
+    <div id="result"></div>
+</body>
+</html>
