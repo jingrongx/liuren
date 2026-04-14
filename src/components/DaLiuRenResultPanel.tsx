@@ -239,13 +239,26 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
           {result.tianJiangArr.map((jiang, idx) => {
             const jiangInfo = TIAN_JIANG.find(tj => tj.name === jiang);
             const isGood = jiangInfo?.nature === '吉';
-            const isSC = DI_ZHI[idx] === sanChuan.chu || DI_ZHI[idx] === sanChuan.zhong || DI_ZHI[idx] === sanChuan.mo;
+            const zhi = result.tianPan[idx];
+            const isChu = zhi === sanChuan.chu;
+            const isZhong = zhi === sanChuan.zhong;
+            const isMo = zhi === sanChuan.mo;
+            const isSC = isChu || isZhong || isMo;
+            let scLabel = '';
+            if (isChu) scLabel = '初';
+            if (isZhong) scLabel = '中';
+            if (isMo) scLabel = '末';
             return (
-              <div key={idx} className={`p-2 rounded border text-center ${isSC ? 'ring-2 ring-red-400 ring-offset-1' : ''} ${
+              <div key={idx} className={`p-2 rounded border text-center relative ${isSC ? 'ring-2 ring-red-400 ring-offset-1' : ''} ${
                 isGood ? 'bg-red-50 border-red-200' : 'bg-gray-100 border-gray-300'
               }`}>
+                {scLabel && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[7px] font-bold">
+                    {scLabel}
+                  </span>
+                )}
                 <div className="font-bold">{jiang}</div>
-                <div className="text-gray-500">{DI_ZHI[idx]}</div>
+                <div className="text-gray-500">{zhi}</div>
                 <div className={`font-medium ${isGood ? 'text-red-600' : 'text-gray-800'}`}>
                   {jiangInfo?.nature}
                 </div>
