@@ -122,9 +122,9 @@ export default function DaLiuRenPage() {
         </div>
 
         {result && (
-          <>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             {/* 天地盘 */}
-            <div className="mb-8">
+            <div className="lg:col-span-1">
               <TianDiPan
                 diPan={result.diPan}
                 tianPan={result.tianPan}
@@ -134,8 +134,9 @@ export default function DaLiuRenPage() {
               />
             </div>
 
-            {/* 四课和三传 */}
-            <div className="mb-8">
+            {/* 四课、三传和结果 */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* 四课和三传 */}
               <SiKeSanChuan
                 siKe={result.siKe}
                 sanChuan={result.sanChuan}
@@ -143,13 +144,11 @@ export default function DaLiuRenPage() {
                 dayZhi={result.dayZhi}
                 tianJiangArr={result.tianJiangArr}
               />
-            </div>
 
-            {/* 结果详情 */}
-            <div className="mb-8">
+              {/* 结果详情 */}
               <DaLiuRenResultPanel result={result} />
             </div>
-          </>
+          </div>
         )}
 
         {/* 大六壬简介 */}

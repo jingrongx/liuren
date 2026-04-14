@@ -68,8 +68,8 @@ const TianDiPan: React.FC<TianDiPanProps> = ({ diPan, tianPan, tianJiangArr, san
     const idx = DI_ZHI.indexOf(pos.zhi);
     const tianZhi = tianPan[idx];
     const tianJiang = tianJiangArr[idx];
-    const isSC = isSanChuan(pos.zhi, sanChuan) || isSanChuan(tianZhi, sanChuan);
-    const scLabel = getSanChuanLabel(pos.zhi, sanChuan) || getSanChuanLabel(tianZhi, sanChuan);
+    const isSC = isSanChuan(tianZhi, sanChuan);
+    const scLabel = getSanChuanLabel(tianZhi, sanChuan);
     const isSK = isSiKe(pos.zhi, siKe) || isSiKe(tianZhi, siKe);
 
     grid[pos.row][pos.col] = {
