@@ -93,7 +93,7 @@ const SiKeSanChuan: React.FC<SiKeSanChuanProps> = ({
                 {/* 下神 */}
                 <div className="text-center">
                   <div className={`text-sm font-bold px-2 py-1 rounded bg-white border border-gray-200 text-gray-600`}>
-                    {ke.xia}
+                    {ke.xia}{i === 0 ? `(${dayGan})` : ''}
                   </div>
                 </div>
               </div>
