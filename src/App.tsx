@@ -12,7 +12,7 @@ function NavBar() {
     <nav className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-amber-100">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link to="/" className="text-lg font-bold bg-gradient-to-r from-red-800 to-amber-700 bg-clip-text text-transparent">
-          小六壬
+          {isDaLiuRen ? '大六壬' : '小六壬'}
         </Link>
         <div className="flex bg-gray-100 rounded-lg p-1">
           <Link
