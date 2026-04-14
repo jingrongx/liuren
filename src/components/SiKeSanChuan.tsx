@@ -62,47 +62,38 @@ const SiKeSanChuan: React.FC<SiKeSanChuanProps> = ({
       {/* 四课 */}
       <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-amber-200">
         <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">四课</h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-3">
           {siKe.map((ke, i) => {
             const shangWx = ZHI_WU_XING[ke.shang] || '';
             const xiaWx = ZHI_WU_XING[ke.xia] || '';
 
             return (
               <div key={i} className={`border-2 rounded-lg p-3 ${getGuanxiColor(ke.guanxi, ke.direction)}`}>
-                <div className="text-sm font-bold text-amber-700 mb-2">{ke.label}</div>
-                <div className="flex items-center justify-center gap-3">
-                  <div className="text-center">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm font-bold text-amber-700">{ke.label}</div>
+                  <div className={`text-xs font-medium ${ke.direction === '上克下' ? 'text-red-600' : ke.direction === '下贼上' ? 'text-orange-600' : ke.direction === '上生下' ? 'text-blue-600' : ke.direction === '下生上' ? 'text-cyan-600' : 'text-gray-500'}`}>
+                    {ke.direction}
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-center flex-1">
                     <div className={`text-2xl font-bold px-3 py-1 rounded ${getWuXingBadge(shangWx)}`}>
                       {ke.shang}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">{shangWx}</div>
                   </div>
                   <div className="text-center">
-                    <div className={`text-lg px-2 py-0.5 rounded text-sm font-medium ${
-                      ke.direction === '上克下' || ke.direction === '下贼上'
-                        ? 'bg-red-100 text-red-700'
-                        : ke.direction === '上生下' || ke.direction === '下生上'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'bg-gray-100 text-gray-600'
-                    }`}>
+                    <div className={`text-lg px-2 py-0.5 rounded text-sm font-medium ${ke.direction === '上克下' || ke.direction === '下贼上' ? 'bg-red-100 text-red-700' : ke.direction === '上生下' || ke.direction === '下生上' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
                       {getGuanxiText(ke.guanxi, ke.direction)}
                     </div>
                     <div className="text-lg text-gray-400 mt-1">↓</div>
                   </div>
-                  <div className="text-center">
+                  <div className="text-center flex-1">
                     <div className={`text-lg px-3 py-1 rounded text-gray-600 bg-white border border-gray-200`}>
                       {ke.xia}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">{xiaWx}</div>
                   </div>
-                </div>
-                <div className={`text-xs text-center mt-2 font-medium ${
-                  ke.direction === '上克下' ? 'text-red-600' :
-                  ke.direction === '下贼上' ? 'text-orange-600' :
-                  ke.direction === '上生下' ? 'text-blue-600' :
-                  ke.direction === '下生上' ? 'text-cyan-600' : 'text-gray-500'
-                }`}>
-                  {ke.direction}
                 </div>
               </div>
             );
@@ -122,39 +113,45 @@ const SiKeSanChuan: React.FC<SiKeSanChuanProps> = ({
           </span>
         </div>
 
-        <div className="flex items-center justify-center gap-4 mb-4">
+        <div className="flex flex-col items-center gap-3 mb-4">
           {/* 初传 */}
-          <div className="text-center">
-            <div className="text-xs text-purple-600 font-medium mb-1">{scTianJiang.chu}</div>
+          <div className="text-center w-full max-w-xs">
+            <div className="flex items-center justify-between mb-1">
+              <div className="text-xs text-purple-600 font-medium">{scTianJiang.chu}</div>
+              <div className="text-xs text-gray-500">初传</div>
+            </div>
             <div className={`text-3xl font-bold px-5 py-3 rounded-lg border-2 border-red-300 ${getWuXingBadge(scWuXing.chu)}`}>
               {sanChuan.chu}
             </div>
-            <div className="text-xs text-gray-500 mt-1">初传</div>
-            <div className="text-xs text-gray-400">{scWuXing.chu}</div>
+            <div className="text-xs text-gray-400 mt-1">{scWuXing.chu}</div>
           </div>
 
-          <div className="text-lg text-gray-400">→</div>
+          <div className="text-lg text-gray-400">↓</div>
 
           {/* 中传 */}
-          <div className="text-center">
-            <div className="text-xs text-purple-600 font-medium mb-1">{scTianJiang.zhong}</div>
+          <div className="text-center w-full max-w-xs">
+            <div className="flex items-center justify-between mb-1">
+              <div className="text-xs text-purple-600 font-medium">{scTianJiang.zhong}</div>
+              <div className="text-xs text-gray-500">中传</div>
+            </div>
             <div className={`text-3xl font-bold px-5 py-3 rounded-lg border-2 border-amber-300 ${getWuXingBadge(scWuXing.zhong)}`}>
               {sanChuan.zhong}
             </div>
-            <div className="text-xs text-gray-500 mt-1">中传</div>
-            <div className="text-xs text-gray-400">{scWuXing.zhong}</div>
+            <div className="text-xs text-gray-400 mt-1">{scWuXing.zhong}</div>
           </div>
 
-          <div className="text-lg text-gray-400">→</div>
+          <div className="text-lg text-gray-400">↓</div>
 
           {/* 末传 */}
-          <div className="text-center">
-            <div className="text-xs text-purple-600 font-medium mb-1">{scTianJiang.mo}</div>
+          <div className="text-center w-full max-w-xs">
+            <div className="flex items-center justify-between mb-1">
+              <div className="text-xs text-purple-600 font-medium">{scTianJiang.mo}</div>
+              <div className="text-xs text-gray-500">末传</div>
+            </div>
             <div className={`text-3xl font-bold px-5 py-3 rounded-lg border-2 border-blue-300 ${getWuXingBadge(scWuXing.mo)}`}>
               {sanChuan.mo}
             </div>
-            <div className="text-xs text-gray-500 mt-1">末传</div>
-            <div className="text-xs text-gray-400">{scWuXing.mo}</div>
+            <div className="text-xs text-gray-400 mt-1">{scWuXing.mo}</div>
           </div>
         </div>
 
@@ -167,9 +164,7 @@ const SiKeSanChuan: React.FC<SiKeSanChuanProps> = ({
           ].map((item) => {
             const info = getTianJiangInfo(item.name);
             return (
-              <div key={item.label} className={`text-center p-2 rounded-lg ${
-                info?.nature === '吉' ? 'bg-red-50 border border-red-200' : 'bg-gray-100 border border-gray-300'
-              }`}>
+              <div key={item.label} className={`text-center p-2 rounded-lg ${info?.nature === '吉' ? 'bg-red-50 border border-red-200' : 'bg-gray-100 border border-gray-300'}`}>
                 <div className="text-xs text-gray-500">{item.label}天将</div>
                 <div className={`font-bold ${info?.nature === '吉' ? 'text-red-700' : 'text-gray-800'}`}>
                   {item.name}
