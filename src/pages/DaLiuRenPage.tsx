@@ -157,7 +157,7 @@ export default function DaLiuRenPage() {
           <h3 className="text-xl font-bold text-indigo-800 mb-4 text-center">大六壬简介</h3>
           <div className="prose prose-sm max-w-none text-gray-600 space-y-3">
             <p>大六壬，与太乙神数、奇门遁甲并称"三式"，是中国传统术数中最为高深的预测学之一。其以日干支为基准，月将加时起天盘，取四课定三传，推人事之吉凶。</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div className="bg-indigo-50 rounded-lg p-4">
                 <h4 className="font-bold text-indigo-800 mb-2">天地盘</h4>
                 <p className="text-sm text-gray-600">月将加时起天盘，中圈为天盘神（旋转地支），内圈为地盘（固定地支），外圈为十二天将临位。</p>
@@ -169,6 +169,22 @@ export default function DaLiuRenPage() {
               <div className="bg-blue-50 rounded-lg p-4">
                 <h4 className="font-bold text-blue-800 mb-2">三传</h4>
                 <p className="text-sm text-gray-600">初传为事之始，中传为事之中，末传为事之终，三传递推可知始终。</p>
+              </div>
+              <div className="bg-amber-50 rounded-lg p-4">
+                <h4 className="font-bold text-amber-800 mb-2">天干寄宫</h4>
+                <p className="text-sm text-gray-600 mb-2">天干无位，须寄于地支方能在天地盘上取课。甲寄寅，乙寄卯，丙戊寄巳，丁己寄午，庚寄申，辛寄酉，壬寄亥，癸寄子。</p>
+                <div className="grid grid-cols-5 gap-1 text-xs">
+                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">甲→寅</span></div>
+                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">乙→卯</span></div>
+                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">丙→巳</span></div>
+                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">丁→午</span></div>
+                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">戊→巳</span></div>
+                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">己→午</span></div>
+                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">庚→申</span></div>
+                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">辛→酉</span></div>
+                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">壬→亥</span></div>
+                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">癸→子</span></div>
+                </div>
               </div>
             </div>
           </div>
