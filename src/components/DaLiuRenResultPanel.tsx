@@ -32,8 +32,8 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
     keTi.level === '小凶' ? 'bg-amber-50 border-amber-200' :
     'bg-gray-50 border-gray-200';
 
-  const levelColor = keTi.level === '大吉' || keTi.level === '吉' ? 'text-green-700' :
-    keTi.level === '小吉' ? 'text-teal-600' :
+  const levelColor = keTi.level === '大吉' || keTi.level === '吉' ? 'text-red-700' :
+    keTi.level === '小吉' ? 'text-red-600' :
     keTi.level === '大凶' || keTi.level === '凶' ? 'text-red-700' :
     keTi.level === '小凶' ? 'text-orange-600' : 'text-gray-600';
 

@@ -38,7 +38,7 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8">
         <header className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-red-800 via-amber-700 to-red-800 bg-clip-text text-transparent mb-2">
-            六壬占卜
+            小六壬
           </h1>
           <p className="text-gray-600 text-lg">传统占卜文化，在线吉凶预测</p>
           <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center">
@@ -192,7 +192,7 @@ export default function Home() {
           {/* 底部版权信息 */}
           <div className="text-gray-500 text-sm space-y-2 pt-4 border-t border-gray-200">
             <p>本程序仅供学习研究使用，请勿用于商业用途</p>
-            <p>© 2024 六壬占卜 - 传承传统占卜文化</p>
+            <p>© 2024 小六壬 - 传承传统占卜文化</p>
           </div>
         </footer>
       </div>
