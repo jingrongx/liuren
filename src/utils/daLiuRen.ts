@@ -1196,11 +1196,11 @@ export function calculateDaLiuRen(date: Date, shichen?: string): DaLiuRenResult 
 // 辅助函数
 // ============================================================
 
-export function getSanChuanTianJiang(sanChuan: Chuan, tianJiangArr: string[]): { chu: string; zhong: string; mo: string } {
+export function getSanChuanTianJiang(sanChuan: Chuan, tianJiangArr: string[], tianPan: string[]): { chu: string; zhong: string; mo: string } {
   return {
-    chu: tianJiangArr[zhiIndex(sanChuan.chu)] || '—',
-    zhong: tianJiangArr[zhiIndex(sanChuan.zhong)] || '—',
-    mo: tianJiangArr[zhiIndex(sanChuan.mo)] || '—',
+    chu: tianJiangArr[tianPan.indexOf(sanChuan.chu)] || '—',
+    zhong: tianJiangArr[tianPan.indexOf(sanChuan.zhong)] || '—',
+    mo: tianJiangArr[tianPan.indexOf(sanChuan.mo)] || '—',
   };
 }
 
@@ -1359,7 +1359,7 @@ export interface SanChuanDetail {
   mo: { zhi: string; wuxing: string; tianJiang: string; changSheng: string; leiShen: string };
 }
 
-export function getSanChuanDetail(sanChuan: Chuan, tianJiangArr: string[], dayGan: string): SanChuanDetail {
+export function getSanChuanDetail(sanChuan: Chuan, tianJiangArr: string[], tianPan: string[], dayGan: string): SanChuanDetail {
   const leiShenMap = findLeiShenInSanChuan(sanChuan, dayGan);
 
   const buildDetail = (zhi: string, tjName: string, lsName: string) => ({
@@ -1371,8 +1371,8 @@ export function getSanChuanDetail(sanChuan: Chuan, tianJiangArr: string[], dayGa
   });
 
   return {
-    chu: buildDetail(sanChuan.chu, tianJiangArr[zhiIndex(sanChuan.chu)] || '', leiShenMap.chu),
-    zhong: buildDetail(sanChuan.zhong, tianJiangArr[zhiIndex(sanChuan.zhong)] || '', leiShenMap.zhong),
-    mo: buildDetail(sanChuan.mo, tianJiangArr[zhiIndex(sanChuan.mo)] || '', leiShenMap.mo),
+    chu: buildDetail(sanChuan.chu, tianJiangArr[tianPan.indexOf(sanChuan.chu)] || '', leiShenMap.chu),
+    zhong: buildDetail(sanChuan.zhong, tianJiangArr[tianPan.indexOf(sanChuan.zhong)] || '', leiShenMap.zhong),
+    mo: buildDetail(sanChuan.mo, tianJiangArr[tianPan.indexOf(sanChuan.mo)] || '', leiShenMap.mo),
   };
 }

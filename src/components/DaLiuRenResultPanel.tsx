@@ -18,11 +18,11 @@ interface DaLiuRenResultPanelProps {
 
 const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => {
   const { keTi, sanChuan, dayGan } = result;
-  const scTianJiang = getSanChuanTianJiang(sanChuan, result.tianJiangArr);
+  const scTianJiang = getSanChuanTianJiang(sanChuan, result.tianJiangArr, result.tianPan);
   const scWuXing = getSanChuanWuXing(sanChuan);
   const ganWx = GAN_WU_XING[result.dayGan];
   const leiShenList = getLeiShen(dayGan);
-  const scDetail = getSanChuanDetail(sanChuan, result.tianJiangArr, dayGan);
+  const scDetail = getSanChuanDetail(sanChuan, result.tianJiangArr, result.tianPan, dayGan);
 
   const levelBg = keTi.level === '大吉' ? 'bg-green-50 border-green-200' :
     keTi.level === '吉' ? 'bg-emerald-50 border-emerald-200' :

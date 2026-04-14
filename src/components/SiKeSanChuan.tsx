@@ -62,7 +62,7 @@ const SiKeSanChuan: React.FC<SiKeSanChuanProps> = ({
   tianJiangArr,
   tianPan,
 }) => {
-  const scTianJiang = getSanChuanTianJiang(sanChuan, tianJiangArr);
+  const scTianJiang = getSanChuanTianJiang(sanChuan, tianJiangArr, tianPan);
   const scWuXing = getSanChuanWuXing(sanChuan);
 
   return (
