@@ -18,6 +18,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false  # 不持久化凭证，使用 GITHUB_TOKEN
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -33,6 +34,38 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update version
+        run: |
+          # 获取当前版本号
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Current version: $CURRENT_VERSION"
+          
+          # 递增补丁版本号 (例如: 1.2.0 -> 1.2.1)
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+          NEW_VERSION="$major.$minor.$((patch + 1))"
+          echo "New version: $NEW_VERSION"
+          
+          # 更新 package.json
+          npm version --no-git-tag-version $NEW_VERSION
+          
+          # 更新 Android 版本号
+          cd android
+          NEW_VERSION_CODE=$(grep "versionCode" app/build.gradle | grep -o '[0-9]\+')
+          NEW_VERSION_CODE=$((NEW_VERSION_CODE + 1))
+          sed -i "s/versionCode [0-9]\+/versionCode $NEW_VERSION_CODE/" app/build.gradle
+          sed -i "s/versionName \".*\"/versionName \"$NEW_VERSION\"/" app/build.gradle
+          
+          # 提交更改
+          cd ..
+          git add package.json android/app/build.gradle
+          git commit -m "chore: 自动更新版本到 $NEW_VERSION"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
 
       - name: Build web
         run: npm run build

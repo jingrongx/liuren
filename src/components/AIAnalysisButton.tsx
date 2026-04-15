@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Sparkles, X, Copy, Check, Loader2, User, Calendar, Venus, Mars } from 'lucide-react';
+import { Sparkles, X, Copy, Check, Loader2, User, Calendar, Venus, Mars, RefreshCw } from 'lucide-react';
 import { loadConfig, saveConfig, DEFAULT_CONFIG } from './AISettingsButton';
 
 interface AIAnalysisButtonProps {
@@ -36,6 +36,18 @@ const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({ prompt }) => {
       setTimeout(() => setResponseCopied(false), 2000);
     });
   }, [aiResponse]);
+
+  const handleReset = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    setIsLoading(false);
+    setIsStreaming(false);
+    setError('');
+    setAiResponse('');
+    setUserQuestion('');
+    setUserInfo({ gender: '', birthDate: '' });
+  }, []);
 
   const renderMarkdown = (text: string) => {
     // 简单的 Markdown 渲染
@@ -310,13 +322,23 @@ const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({ prompt }) => {
                     <div className="mb-4">
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="text-lg font-bold text-gray-800">AI 解读结果</h3>
-                        <button
-                          onClick={handleCopyResponse}
-                          className="px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-md text-sm hover:bg-purple-100 flex items-center gap-1 text-purple-700 font-medium"
-                        >
-                          {responseCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                          {responseCopied ? '已复制' : '复制解读'}
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={handleReset}
+                            className="px-3 py-1.5 bg-gray-100 border border-gray-300 rounded-md text-sm hover:bg-gray-200 flex items-center gap-1 text-gray-700 font-medium"
+                            title="新会话"
+                          >
+                            <RefreshCw className="w-4 h-4" />
+                            新会话
+                          </button>
+                          <button
+                            onClick={handleCopyResponse}
+                            className="px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-md text-sm hover:bg-purple-100 flex items-center gap-1 text-purple-700 font-medium"
+                          >
+                            {responseCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                            {responseCopied ? '已复制' : '复制解读'}
+                          </button>
+                        </div>
                       </div>
                       <div 
                         className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-4"
