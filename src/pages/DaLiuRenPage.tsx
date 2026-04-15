@@ -174,18 +174,18 @@ export default function DaLiuRenPage() {
               </div>
               <div className="bg-amber-50 rounded-lg p-4">
                 <h4 className="font-bold text-amber-800 mb-2">天干寄宫</h4>
-                <p className="text-sm text-gray-600 mb-2">天干无位，须寄于地支方能在天地盘上取课。甲寄寅，乙寄卯，丙戊寄巳，丁己寄午，庚寄申，辛寄酉，壬寄亥，癸寄子。</p>
+                <p className="text-sm text-gray-600 mb-2">天干无位，须寄于地支方能在天地盘上取课。阳干寄禄位，阴干寄墓库，土不寄四正（子午卯酉）。</p>
                 <div className="grid grid-cols-5 gap-1 text-xs">
                   <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">甲→寅</span></div>
-                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">乙→卯</span></div>
+                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">乙→辰</span></div>
                   <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">丙→巳</span></div>
-                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">丁→午</span></div>
+                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">丁→未</span></div>
                   <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">戊→巳</span></div>
-                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">己→午</span></div>
+                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">己→未</span></div>
                   <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">庚→申</span></div>
-                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">辛→酉</span></div>
+                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">辛→戌</span></div>
                   <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">壬→亥</span></div>
-                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">癸→子</span></div>
+                  <div className="text-center bg-white rounded px-1 py-0.5 border border-amber-200"><span className="text-amber-700 font-bold">癸→丑</span></div>
                 </div>
               </div>
             </div>

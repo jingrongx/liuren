@@ -27,26 +27,22 @@ export const TIAN_JIANG = [
 ];
 
 // 十二月将（按中气换将）
-// 大六壬月将：中气后换将
-// 冬至后→登明亥，小寒后→登明亥，大寒后→河魁戌，立春后→河魁戌，
-// 雨水后→从魁酉，惊蛰后→从魁酉，春分后→传送申，清明后→传送申，
-// 谷雨后→小吉未，立夏后→小吉未，小满后→胜光午，芒种后→胜光午，
-// 夏至后→太乙巳，小暑后→太乙巳，大暑后→天罡辰，立秋后→天罡辰，
-// 处暑后→太冲卯，白露后→太冲卯，秋分后→功曹寅，寒露后→功曹寅，
-// 霜降后→大吉丑，立冬后→大吉丑，小雪后→神后子，大雪后→神后子
+// 口诀：雨水后亥（登明）、春分戌（河魁）、谷雨酉（从魁）、小满申（传送）、
+//       夏至未（小吉）、大暑午（胜光）、处暑巳（太乙）、秋分辰（天罡）、
+//       霜降卯（太冲）、小雪寅（功曹）、冬至丑（大吉）、大寒子（神后）
 export const YUE_JIANG = [
-  { name: '登明', zhi: '亥', jieQi: '小寒' },
-  { name: '河魁', zhi: '戌', jieQi: '大寒' },
-  { name: '从魁', zhi: '酉', jieQi: '雨水' },
-  { name: '传送', zhi: '申', jieQi: '春分' },
-  { name: '小吉', zhi: '未', jieQi: '谷雨' },
-  { name: '胜光', zhi: '午', jieQi: '小满' },
-  { name: '太乙', zhi: '巳', jieQi: '夏至' },
-  { name: '天罡', zhi: '辰', jieQi: '大暑' },
-  { name: '太冲', zhi: '卯', jieQi: '处暑' },
-  { name: '功曹', zhi: '寅', jieQi: '秋分' },
-  { name: '大吉', zhi: '丑', jieQi: '霜降' },
-  { name: '神后', zhi: '子', jieQi: '小雪' },
+  { name: '登明', zhi: '亥', jieQi: '雨水' },
+  { name: '河魁', zhi: '戌', jieQi: '春分' },
+  { name: '从魁', zhi: '酉', jieQi: '谷雨' },
+  { name: '传送', zhi: '申', jieQi: '小满' },
+  { name: '小吉', zhi: '未', jieQi: '夏至' },
+  { name: '胜光', zhi: '午', jieQi: '大暑' },
+  { name: '太乙', zhi: '巳', jieQi: '处暑' },
+  { name: '天罡', zhi: '辰', jieQi: '秋分' },
+  { name: '太冲', zhi: '卯', jieQi: '霜降' },
+  { name: '功曹', zhi: '寅', jieQi: '小雪' },
+  { name: '大吉', zhi: '丑', jieQi: '冬至' },
+  { name: '神后', zhi: '子', jieQi: '大寒' },
 ];
 
 // 十二长生诀
@@ -83,9 +79,11 @@ export const GAN_YIN_YANG: Record<string, string> = {
 };
 
 // 天干寄宫（日干寄宫地支）
+// 口诀：甲课寅兮乙课辰，丙戊课巳不需论，丁己课未庚申上，辛戌壬亥是其真，癸课原来丑宫坐，分明不用四正神
+// 阳干寄禄位，阴干寄墓库/冠带，土不寄四正（子午卯酉）
 export const GAN_JI_GONG: Record<string, string> = {
-  '甲': '寅', '乙': '卯', '丙': '巳', '丁': '午', '戊': '巳',
-  '己': '午', '庚': '申', '辛': '酉', '壬': '亥', '癸': '子'
+  '甲': '寅', '乙': '辰', '丙': '巳', '丁': '未', '戊': '巳',
+  '己': '未', '庚': '申', '辛': '戌', '壬': '亥', '癸': '丑'
 };
 
 // 地支三合局
@@ -169,22 +167,29 @@ export function getGuiZhi(dayGan: string, shichen: string): string {
   return guiTable[dayGan] || '丑';
 }
 
-// 贵人顺逆：天盘贵人落在地盘亥子丑寅卯辰（索引9,10,11,0,1,2）顺行，其余逆行
-export function arrangeTianJiang(guiZhiOnEarth: string): string[] {
-  const guiIdx = zhiIndex(guiZhiOnEarth);
-  const shunSet = new Set([9, 10, 11, 0, 1, 2]); // 亥子丑寅卯辰
-  const isShun = shunSet.has(guiIdx);
+// 贵人顺逆：昼占（卯—酉）贵人顺排，夜占（戌—寅）贵人逆排
+// 顺逆判断：天盘贵人落在地盘亥子丑寅卯辰位顺行，落在地盘巳午未申酉戌位逆行
+// guiPosOnEarth: 天盘贵人所在的地盘位置索引
+export function arrangeTianJiangByPos(guiPosOnEarth: number): string[] {
+  // 亥(9)子(10)丑(11)寅(0)卯(1)辰(2) → 顺行
+  const shunSet = new Set([9, 10, 11, 0, 1, 2]);
+  const isShun = shunSet.has(guiPosOnEarth);
   const result: string[] = new Array(12);
   if (isShun) {
     for (let i = 0; i < 12; i++) {
-      result[(guiIdx + i) % 12] = TIAN_JIANG[i].name;
+      result[(guiPosOnEarth + i) % 12] = TIAN_JIANG[i].name;
     }
   } else {
     for (let i = 0; i < 12; i++) {
-      result[(guiIdx - i + 12) % 12] = TIAN_JIANG[i].name;
+      result[(guiPosOnEarth - i + 12) % 12] = TIAN_JIANG[i].name;
     }
   }
   return result;
+}
+
+// 保留旧函数兼容
+export function arrangeTianJiang(guiZhiOnEarth: string): string[] {
+  return arrangeTianJiangByPos(zhiIndex(guiZhiOnEarth));
 }
 
 // ============================================================
@@ -192,20 +197,23 @@ export function arrangeTianJiang(guiZhiOnEarth: string): string[] {
 // ============================================================
 
 // 二十四节气对应月将索引（使用当前节气推算月将）
-// 规则：冬至后用登明亥，小寒后用登明亥，大寒后用河魁戌...
+// 规则：中气后换将，每个中气对应一个月将
+// 雨水后→登明亥(0)，春分后→河魁戌(1)，谷雨后→从魁酉(2)，小满后→传送申(3)，
+// 夏至后→小吉未(4)，大暑后→胜光午(5)，处暑后→太乙巳(6)，秋分后→天罡辰(7)，
+// 霜降后→太冲卯(8)，小雪后→功曹寅(9)，冬至后→大吉丑(10)，大寒后→神后子(11)
 const JIEQI_TO_YUEJIANG: Record<string, number> = {
-  '冬至': 0, '小寒': 0,
-  '大寒': 1, '立春': 1,
-  '雨水': 2, '惊蛰': 2,
-  '春分': 3, '清明': 3,
-  '谷雨': 4, '立夏': 4,
-  '小满': 5, '芒种': 5,
-  '夏至': 6, '小暑': 6,
-  '大暑': 7, '立秋': 7,
-  '处暑': 8, '白露': 8,
-  '秋分': 9, '寒露': 9,
-  '霜降': 10, '立冬': 10,
-  '小雪': 11, '大雪': 11,
+  '雨水': 0, '惊蛰': 0,
+  '春分': 1, '清明': 1,
+  '谷雨': 2, '立夏': 2,
+  '小满': 3, '芒种': 3,
+  '夏至': 4, '小暑': 4,
+  '大暑': 5, '立秋': 5,
+  '处暑': 6, '白露': 6,
+  '秋分': 7, '寒露': 7,
+  '霜降': 8, '立冬': 8,
+  '小雪': 9, '大雪': 9,
+  '冬至': 10, '小寒': 10,
+  '大寒': 11, '立春': 11,
 };
 
 // 获取当前节气名称（使用 Lunar API）
@@ -259,13 +267,16 @@ export function getYueJiangZhi(date: Date): string {
 // ============================================================
 
 export function buildTianPan(yueJiangZhi: string, shiZhi: string): string[] {
-  // 月将加时：将月将放在时辰所在位置，其余顺排
-  // 天盘[i] = 从月将位置数i步到达的地支
+  // 月将加时：将月将放在地盘时辰位置上，其余顺时针排满
+  // 天盘[i]表示地盘位置i上对应的天盘地支
+  // 地盘位置i的时辰是DI_ZHI[i]
+  // 月将放在地盘shiZhi位置上，即天盘[shiIdx] = yueJiangZhi
+  // 然后从月将开始顺时针排满十二地支
   const yueJiangIdx = zhiIndex(yueJiangZhi);
   const shiIdx = zhiIndex(shiZhi);
   const tianPan: string[] = [];
   for (let i = 0; i < 12; i++) {
-    // 地盘位置i上，天盘是月将顺推(i - shiIdx)步
+    // 地盘位置i上，天盘地支 = 从月将地支开始，顺推(i - shiIdx)步
     tianPan[i] = DI_ZHI[(yueJiangIdx + (i - shiIdx) + 12) % 12];
   }
   return tianPan;
@@ -1205,10 +1216,13 @@ export function calculateDaLiuRen(date: Date, shichen?: string): DaLiuRenResult 
   const sanChuan = calculateSanChuan(siKe, dayGan, dayZhi, tianPan);
 
   // 天将
-  const guiZhiOnEarth = getGuiZhi(dayGan, shiZhi);
+  // 贵人定局给出的是贵人的地支，需要找到该地支在天盘上的位置
+  const guiZhi = getGuiZhi(dayGan, shiZhi);
+  // 天盘上贵人所在的地盘位置
+  const guiPosOnEarth = tianPan.indexOf(guiZhi);
   const guiShunSet = new Set([9, 10, 11, 0, 1, 2]);
-  const guiDirection: '顺' | '逆' = guiShunSet.has(zhiIndex(guiZhiOnEarth)) ? '顺' : '逆';
-  const tianJiangArr = arrangeTianJiang(guiZhiOnEarth);
+  const guiDirection: '顺' | '逆' = guiShunSet.has(guiPosOnEarth) ? '顺' : '逆';
+  const tianJiangArr = arrangeTianJiangByPos(guiPosOnEarth);
 
   // 课体
   const keTi = judgeKeTi(sanChuan, siKe, dayGan, sanChuan.men);

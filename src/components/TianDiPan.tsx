@@ -40,8 +40,8 @@ function getSanChuanLabel(zhi: string, sanChuan: { chu: string; zhong: string; m
 
 const toRad = (deg: number) => (deg * Math.PI) / 180;
 
-// 传统大六壬布局：子在下方(90°)，午在上方(-90°)，顺时针排列
-const getSectorAngle = (i: number) => 90 - i * 30;
+// 传统大六壬布局：子在下方，顺时针排列（丑在左下，寅在左，卯在左上...）
+const getSectorAngle = (i: number) => 90 + i * 30;
 
 const getPoint = (angleDeg: number, r: number) => ({
   x: CX + r * Math.cos(toRad(angleDeg)),
