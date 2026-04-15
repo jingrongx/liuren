@@ -455,11 +455,16 @@ export function getSiZhu(date: Date, shichen?: string): SiZhu {
   // 时柱
   let hourGanZhi: string;
   if (shichen) {
-    const shiIdx = DI_ZHI.indexOf(shichen);
-    const dayGanTianGanIdx = TIAN_GAN.indexOf(dayGanZhi[0]);
-    // 时干计算公式：(日干序 * 2 + 时支序) % 10
-    const hourGanIdx = (dayGanTianGanIdx * 2 + shiIdx) % 10;
-    hourGanZhi = TIAN_GAN[hourGanIdx] + shichen;
+    if (shichen === '子') {
+      // 子时特殊处理：使用lunar库的getHourInGanZhi方法获取正确的时柱
+      hourGanZhi = lunar.getTimeInGanZhi();
+    } else {
+      const shiIdx = DI_ZHI.indexOf(shichen);
+      const dayGanTianGanIdx = TIAN_GAN.indexOf(dayGanZhi[0]);
+      // 时干计算公式：(日干序 * 2 + 时支序) % 10
+      const hourGanIdx = (dayGanTianGanIdx * 2 + shiIdx) % 10;
+      hourGanZhi = TIAN_GAN[hourGanIdx] + shichen;
+    }
   } else {
     hourGanZhi = lunar.getTimeInGanZhi();
   }
