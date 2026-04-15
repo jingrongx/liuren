@@ -111,6 +111,45 @@ export const ZHI_XING: Record<string, string> = {
 // 地支自刑
 export const ZHI_ZI_XING = new Set(['辰', '午', '酉', '亥']);
 
+// 地支六合
+// 口诀：子丑合土、寅亥合木、卯戌合火、辰酉合金、巳申合水、午未合太阳太阴
+export const ZHI_LIU_HE: Record<string, { he: string; wuxing: string }> = {
+  '子': { he: '丑', wuxing: '土' },
+  '丑': { he: '子', wuxing: '土' },
+  '寅': { he: '亥', wuxing: '木' },
+  '亥': { he: '寅', wuxing: '木' },
+  '卯': { he: '戌', wuxing: '火' },
+  '戌': { he: '卯', wuxing: '火' },
+  '辰': { he: '酉', wuxing: '金' },
+  '酉': { he: '辰', wuxing: '金' },
+  '巳': { he: '申', wuxing: '水' },
+  '申': { he: '巳', wuxing: '水' },
+  '午': { he: '未', wuxing: '火' },
+  '未': { he: '午', wuxing: '火' },
+};
+
+// 地支六害
+// 口诀：子未害、丑午害、寅巳害、卯辰害、申亥害、酉戌害
+export const ZHI_LIU_HAI: Record<string, string> = {
+  '子': '未', '未': '子',
+  '丑': '午', '午': '丑',
+  '寅': '巳', '巳': '寅',
+  '卯': '辰', '辰': '卯',
+  '申': '亥', '亥': '申',
+  '酉': '戌', '戌': '酉',
+};
+
+// 地支相破
+// 口诀：子酉破、丑辰破、寅亥破、卯午破、巳申破、未戌破
+export const ZHI_PO: Record<string, string> = {
+  '子': '酉', '酉': '子',
+  '丑': '辰', '辰': '丑',
+  '寅': '亥', '亥': '寅',
+  '卯': '午', '午': '卯',
+  '巳': '申', '申': '巳',
+  '未': '戌', '戌': '未',
+};
+
 // 五行生克关系
 export function wuxingRelation(wx1: string, wx2: string): string {
   const sheng: Record<string, string> = { '木': '火', '火': '土', '土': '金', '金': '水', '水': '木' };
@@ -170,9 +209,9 @@ export function getGuiZhi(dayGan: string, shichen: string): string {
 // 贵人顺逆：昼占（卯—酉）贵人顺排，夜占（戌—寅）贵人逆排
 // 顺逆判断：天盘贵人落在地盘亥子丑寅卯辰位顺行，落在地盘巳午未申酉戌位逆行
 // guiPosOnEarth: 天盘贵人所在的地盘位置索引
+// 地盘索引：子(0)丑(1)寅(2)卯(3)辰(4)巳(5)午(6)未(7)申(8)酉(9)戌(10)亥(11)
 export function arrangeTianJiangByPos(guiPosOnEarth: number): string[] {
-  // 亥(9)子(10)丑(11)寅(0)卯(1)辰(2) → 顺行
-  const shunSet = new Set([9, 10, 11, 0, 1, 2]);
+  const shunSet = new Set([0, 1, 2, 3, 4, 11]);
   const isShun = shunSet.has(guiPosOnEarth);
   const result: string[] = new Array(12);
   if (isShun) {
@@ -337,6 +376,173 @@ export function getSiZhu(date: Date, shichen?: string): SiZhu {
     month: monthGanZhi,
     day: dayGanZhi,
     hour: hourGanZhi
+  };
+}
+
+// ============================================================
+// 空亡计算
+// ============================================================
+
+// 六十甲子分为六旬，每旬空亡两个地支
+// 口诀：甲子旬中戌亥空，甲戌旬中申酉空，甲申旬中午未空，
+//       甲午旬中辰巳空，甲辰旬中寅卯空，甲寅旬中子丑空
+const XUN_KONG_WANG: [string, string, string][] = [
+  ['甲', '子', '戌亥'],
+  ['甲', '戌', '申酉'],
+  ['甲', '申', '午未'],
+  ['甲', '午', '辰巳'],
+  ['甲', '辰', '寅卯'],
+  ['甲', '寅', '子丑'],
+];
+
+// 根据日干支计算空亡地支
+export function getKongWang(dayGan: string, dayZhi: string): string[] {
+  const ganIdx = TIAN_GAN.indexOf(dayGan);
+  const zhiIdx = DI_ZHI.indexOf(dayZhi);
+  // 日干支在六十甲子中的序号
+  // 六十甲子序号 = (天干序 * 6 + 地支序/2) 的简化算法
+  // 更准确的算法：找到日干支所在旬
+  // 旬首天干固定为甲，旬首地支 = 日支 - 日干序（模12）
+  // 空亡地支 = 旬首地支后退1位和后退2位
+  const xunShouZhiIdx = (zhiIdx - ganIdx + 12) % 12;
+  const kong1 = DI_ZHI[(xunShouZhiIdx - 1 + 12) % 12];
+  const kong2 = DI_ZHI[(xunShouZhiIdx - 2 + 12) % 12];
+  return [kong1, kong2];
+}
+
+// 判断某地支是否在空亡中
+export function isKongWang(zhi: string, dayGan: string, dayZhi: string): boolean {
+  const kw = getKongWang(dayGan, dayZhi);
+  return kw.includes(zhi);
+}
+
+// ============================================================
+// 德煞
+// ============================================================
+
+// 天德（按月令取天德）
+// 口诀：正丁二坤宫，三壬四辛同，五乾六甲上，七癸八艮逢，九丙十居乙，子巽丑庚中
+// 月份对应农历月
+export const TIAN_DE: Record<number, string> = {
+  1: '丁', 2: '申', 3: '壬', 4: '辛', 5: '亥', 6: '甲',
+  7: '癸', 8: '寅', 9: '丙', 10: '乙', 11: '巳', 12: '庚',
+};
+
+// 月德（按月令取月德，三合局五行之阳干）
+// 口诀：寅午戌月丙，申子辰月壬，亥卯未月甲，巳酉丑月庚
+export const YUE_DE: Record<number, string> = {
+  1: '丙', 2: '甲', 3: '壬', 4: '庚',
+  5: '丙', 6: '甲', 7: '壬', 8: '庚',
+  9: '丙', 10: '甲', 11: '壬', 12: '庚',
+};
+
+// 日德（日干之禄神所临地支）
+// 甲禄寅、乙禄卯、丙戊禄巳、丁己禄午、庚禄申、辛禄酉、壬禄亥、癸禄子
+export const RI_DE: Record<string, string> = {
+  '甲': '寅', '乙': '卯', '丙': '巳', '丁': '午', '戊': '巳',
+  '己': '午', '庚': '申', '辛': '酉', '壬': '亥', '癸': '子',
+};
+
+// 驿马（按日支取）
+// 申子辰马在寅，寅午戌马在申，巳酉丑马在亥，亥卯未马在巳
+export const YI_MA: Record<string, string> = {
+  '申': '寅', '子': '寅', '辰': '寅',
+  '寅': '申', '午': '申', '戌': '申',
+  '巳': '亥', '酉': '亥', '丑': '亥',
+  '亥': '巳', '卯': '巳', '未': '巳',
+};
+
+// 桃花（按日支取）
+// 申子辰桃花酉，寅午戌桃花卯，巳酉丑桃花午，亥卯未桃花子
+export const TAO_HUA: Record<string, string> = {
+  '申': '酉', '子': '酉', '辰': '酉',
+  '寅': '卯', '午': '卯', '戌': '卯',
+  '巳': '午', '酉': '午', '丑': '午',
+  '亥': '子', '卯': '子', '未': '子',
+};
+
+// 华盖（按日支取，三合局最后一位）
+// 申子辰华盖辰，寅午戌华盖戌，巳酉丑华盖丑，亥卯未华盖未
+export const HUA_GAI: Record<string, string> = {
+  '申': '辰', '子': '辰', '辰': '辰',
+  '寅': '戌', '午': '戌', '戌': '戌',
+  '巳': '丑', '酉': '丑', '丑': '丑',
+  '亥': '未', '卯': '未', '未': '未',
+};
+
+// 劫煞（按日支取，三合局中气对冲后一位）
+// 申子辰劫煞巳，寅午戌劫煞亥，巳酉丑劫煞寅，亥卯未劫煞申
+export const JIE_SHA: Record<string, string> = {
+  '申': '巳', '子': '巳', '辰': '巳',
+  '寅': '亥', '午': '亥', '戌': '亥',
+  '巳': '寅', '酉': '寅', '丑': '寅',
+  '亥': '申', '卯': '申', '未': '申',
+};
+
+// 灾煞（按日支取，劫煞后一位）
+export const ZAI_SHA: Record<string, string> = {
+  '申': '午', '子': '午', '辰': '午',
+  '寅': '子', '午': '子', '戌': '子',
+  '巳': '卯', '酉': '卯', '丑': '卯',
+  '亥': '酉', '卯': '酉', '未': '酉',
+};
+
+// 天乙贵人（重导出，与贵人定局一致）
+export const TIAN_YI_GUI_REN_YANG: Record<string, string> = {
+  '甲': '丑', '戊': '丑', '庚': '丑',
+  '乙': '子', '己': '子',
+  '丙': '亥', '丁': '亥',
+  '壬': '卯', '癸': '卯',
+  '辛': '午',
+};
+
+export const TIAN_YI_GUI_REN_YIN: Record<string, string> = {
+  '甲': '未', '戊': '未', '庚': '未',
+  '乙': '申', '己': '申',
+  '丙': '酉', '丁': '酉',
+  '壬': '巳', '癸': '巳',
+  '辛': '寅',
+};
+
+// 获取所有德煞信息
+export interface DeShaInfo {
+  kongWang: string[];
+  tianDe: string;
+  yueDe: string;
+  riDe: string;
+  yiMa: string;
+  taoHua: string;
+  huaGai: string;
+  jieSha: string;
+  zaiSha: string;
+  tianYiGuiRen: string;
+}
+
+export function getDeShaInfo(dayGan: string, dayZhi: string, shiZhi: string, lunarMonth: number): DeShaInfo {
+  const kongWang = getKongWang(dayGan, dayZhi);
+  const tianDe = TIAN_DE[lunarMonth] || '';
+  const yueDe = YUE_DE[lunarMonth] || '';
+  const riDe = RI_DE[dayGan] || '';
+  const yiMa = YI_MA[dayZhi] || '';
+  const taoHua = TAO_HUA[dayZhi] || '';
+  const huaGai = HUA_GAI[dayZhi] || '';
+  const jieSha = JIE_SHA[dayZhi] || '';
+  const zaiSha = ZAI_SHA[dayZhi] || '';
+  const tianYiGuiRen = isDaytime(shiZhi)
+    ? TIAN_YI_GUI_REN_YANG[dayGan] || ''
+    : TIAN_YI_GUI_REN_YIN[dayGan] || '';
+
+  return {
+    kongWang,
+    tianDe,
+    yueDe,
+    riDe,
+    yiMa,
+    taoHua,
+    huaGai,
+    jieSha,
+    zaiSha,
+    tianYiGuiRen,
   };
 }
 
@@ -587,62 +793,128 @@ function sheHai(siKe: Ke[], dayGan: string): Chuan | null {
 }
 
 // ---- 第四门：遥克法 ----
+// 四课都无克贼时使用
+// 蒿矢：四课上神克日干（寄宫五行），优先
+// 弹射：日干克四课上神
+// 多个遥克时，取与日干同阴阳者为初传
 function yaoKe(siKe: Ke[], dayGan: string): Chuan | null {
   const ganWx = GAN_WU_XING[dayGan];
+  const ganYy = GAN_YIN_YANG[dayGan];
 
-  // 四课都无克贼时使用
-  // 蒿矢：四课上神克日干（寄宫五行）
-  for (let i = 0; i < siKe.length; i++) {
-    const shangWx = ZHI_WU_XING[siKe[i].shang] || '';
-    if (wuxingRelation(shangWx, ganWx) === '克') {
-      return {
-        chu: siKe[i].shang, zhong: '', mo: '',
-        men: '蒿矢',
-        desc: `四课上神${siKe[i].shang}（${shangWx}）克日干${dayGan}（${ganWx}），蒿矢法取为初传`
-      };
-    }
+  // 蒿矢：四课上神克日干
+  const haoShiList = siKe.filter(ke => {
+    const shangWx = ZHI_WU_XING[ke.shang] || '';
+    return wuxingRelation(shangWx, ganWx) === '克';
+  });
+
+  if (haoShiList.length === 1) {
+    const shangWx = ZHI_WU_XING[haoShiList[0].shang] || '';
+    return {
+      chu: haoShiList[0].shang, zhong: '', mo: '',
+      men: '蒿矢',
+      desc: `四课上神${haoShiList[0].shang}（${shangWx}）克日干${dayGan}（${ganWx}），蒿矢法取为初传`
+    };
+  }
+
+  if (haoShiList.length > 1) {
+    const matched = haoShiList.filter(ke => ZHI_YIN_YANG[ke.shang] === ganYy);
+    const candidate = matched.length === 1 ? matched[0] : haoShiList[0];
+    const shangWx = ZHI_WU_XING[candidate.shang] || '';
+    return {
+      chu: candidate.shang, zhong: '', mo: '',
+      men: '蒿矢',
+      desc: `多课上神克日干，取与日干同阴阳（${ganYy}）的上神${candidate.shang}（${shangWx}）克日干${dayGan}（${ganWx}），蒿矢法取为初传`
+    };
   }
 
   // 弹射：日干克四课上神
-  for (let i = 0; i < siKe.length; i++) {
-    const shangWx = ZHI_WU_XING[siKe[i].shang] || '';
-    if (wuxingRelation(ganWx, shangWx) === '克') {
-      return {
-        chu: siKe[i].shang, zhong: '', mo: '',
-        men: '弹射',
-        desc: `日干${dayGan}（${ganWx}）克上神${siKe[i].shang}（${shangWx}），弹射法取为初传`
-      };
-    }
+  const tanSheList = siKe.filter(ke => {
+    const shangWx = ZHI_WU_XING[ke.shang] || '';
+    return wuxingRelation(ganWx, shangWx) === '克';
+  });
+
+  if (tanSheList.length === 1) {
+    const shangWx = ZHI_WU_XING[tanSheList[0].shang] || '';
+    return {
+      chu: tanSheList[0].shang, zhong: '', mo: '',
+      men: '弹射',
+      desc: `日干${dayGan}（${ganWx}）克上神${tanSheList[0].shang}（${shangWx}），弹射法取为初传`
+    };
   }
+
+  if (tanSheList.length > 1) {
+    const matched = tanSheList.filter(ke => ZHI_YIN_YANG[ke.shang] === ganYy);
+    const candidate = matched.length === 1 ? matched[0] : tanSheList[0];
+    const shangWx = ZHI_WU_XING[candidate.shang] || '';
+    return {
+      chu: candidate.shang, zhong: '', mo: '',
+      men: '弹射',
+      desc: `日干克多课上神，取与日干同阴阳（${ganYy}）的上神${candidate.shang}（${shangWx}），弹射法取为初传`
+    };
+  }
+
   return null;
 }
 
 // ---- 第五门：昴星法 ----
-// 四课无克又无遥克时使用
+// 四课全备、无克又无遥克时使用
+// 阳日昴星（虎视转蓬）：初传=酉上天盘，中传=初传之上神，末传=地盘酉
+// 阴日昴星（蛇虎交加）：初传=地盘酉，中传=初传之上神=酉上天盘，末传=酉上天盘
 function maoXing(siKe: Ke[], dayGan: string, tianPan: string[]): Chuan | null {
   const ganYy = GAN_YIN_YANG[dayGan];
-  const youTian = tianPan[zhiIndex('酉')]; // 酉上天盘
+  const youTian = tianPan[zhiIndex('酉')];
 
   if (ganYy === '阳') {
-    // 阳日：取酉上天盘为初传，地盘酉为末传
+    const chu = youTian;
+    const zhong = tianPan[zhiIndex(chu)];
+    const mo = '酉';
     return {
-      chu: youTian, zhong: '', mo: '',
+      chu, zhong, mo,
       men: '昴星',
-      desc: `阳日昴星法，取酉上天盘${youTian}为初传`
+      desc: `阳日昴星法（虎视），取酉上天盘${youTian}为初传，${zhong}为中传，地盘酉为末传`
     };
   } else {
-    // 阴日：取地盘酉为初传，酉上天盘为末传
+    const chu = '酉';
+    const zhong = youTian;
+    const mo = youTian;
     return {
-      chu: '酉', zhong: '', mo: '',
+      chu, zhong, mo,
       men: '昴星',
-      desc: `阴日昴星法，取地盘酉为初传`
+      desc: `阴日昴星法（蛇虎），取地盘酉为初传，酉上天盘${youTian}为中传、末传`
     };
   }
 }
 
 // ---- 第六门：别责法 ----
-// 四课不全（只有三课）时使用
-function bieZe(siKe: Ke[], dayGan: string, tianPan: string[]): Chuan | null {
+// 四课不全（只有三课）时使用，无克贼无遥克
+// 干支同位的情况已由八专法处理
+// 四课不全判断：
+//   1. 第一课上神=日支 → 第二课(上神=第一课上神之上神,下神=第一课上神)与第三课(上神=日支之上神,下神=日支)重复
+//   2. 第三课上神=日干寄宫 → 第四课(上神=第三课上神之上神,下神=第三课上神)与第一课(上神=日干寄宫之上神,下神=日干寄宫)重复
+function checkSiKeBuQuan(siKe: Ke[], dayGan: string, dayZhi: string): { isBuQuan: boolean; reason: string } {
+  const ganJiGong = GAN_JI_GONG[dayGan];
+
+  if (siKe[0].shang === dayZhi) {
+    return {
+      isBuQuan: true,
+      reason: `第一课上神${siKe[0].shang}=日支${dayZhi}，第二课与第三课重复`
+    };
+  }
+
+  if (siKe[2].shang === ganJiGong) {
+    return {
+      isBuQuan: true,
+      reason: `第三课上神${siKe[2].shang}=日干寄宫${ganJiGong}，第四课与第一课重复`
+    };
+  }
+
+  return { isBuQuan: false, reason: '' };
+}
+
+function bieZe(siKe: Ke[], dayGan: string, dayZhi: string, tianPan: string[]): Chuan | null {
+  const { isBuQuan, reason } = checkSiKeBuQuan(siKe, dayGan, dayZhi);
+  if (!isBuQuan) return null;
+
   const ganHe: Record<string, string> = {
     '甲': '己', '己': '甲', '乙': '庚', '庚': '乙',
     '丙': '辛', '辛': '丙', '丁': '壬', '壬': '丁',
@@ -651,10 +923,12 @@ function bieZe(siKe: Ke[], dayGan: string, tianPan: string[]): Chuan | null {
   const heGan = ganHe[dayGan];
   const heJiGong = GAN_JI_GONG[heGan];
   const heJiGongShang = tianPan[zhiIndex(heJiGong)];
+  const zhong = tianPan[zhiIndex(heJiGongShang)];
+  const mo = tianPan[zhiIndex(zhong)];
   return {
-    chu: heJiGongShang, zhong: '', mo: '',
+    chu: heJiGongShang, zhong, mo,
     men: '别责',
-    desc: `别责法，日干${dayGan}合${heGan}，取${heGan}寄宫${heJiGong}上天盘${heJiGongShang}为初传`
+    desc: `别责法，${reason}，日干${dayGan}合${heGan}，取${heGan}寄宫${heJiGong}上天盘${heJiGongShang}为初传，${zhong}为中传，${mo}为末传`
   };
 }
 
@@ -825,17 +1099,17 @@ export function calculateSanChuan(siKe: Ke[], dayGan: string, dayZhi: string, ti
   const ykResult = yaoKe(siKe, dayGan);
   if (ykResult) return fillZhongMo(ykResult, tianPan);
 
-  // 第五门：八专（干支同位时，优先于昴星）
+  // 第五门：八专（干支同位时，优先于别责和昴星）
   const bzhResult = baZhuan(siKe, dayGan, dayZhi, tianPan);
   if (bzhResult) return bzhResult;
 
-  // 第六门：昴星
-  const mxResult = maoXing(siKe, dayGan, tianPan);
-  if (mxResult) return fillZhongMo(mxResult, tianPan);
+  // 第六门：别责（四课不全时，优先于昴星）
+  const bzResult = bieZe(siKe, dayGan, dayZhi, tianPan);
+  if (bzResult) return bzResult;
 
-  // 第七门：别责（四课不全时）
-  const bzResult = bieZe(siKe, dayGan, tianPan);
-  if (bzResult) return fillZhongMo(bzResult, tianPan);
+  // 第七门：昴星（四课全备时）
+  const mxResult = maoXing(siKe, dayGan, tianPan);
+  if (mxResult) return mxResult;
 
   // 兜底
   return fillZhongMo({
@@ -1203,6 +1477,8 @@ export interface DaLiuRenResult {
   guiDirection: '顺' | '逆';
   keTi: KeTi;
   siZhu: SiZhu;
+  deSha: DeShaInfo;
+  siKeBuQuan: { isBuQuan: boolean; reason: string };
 }
 
 export function calculateDaLiuRen(date: Date, shichen?: string): DaLiuRenResult {
@@ -1235,7 +1511,7 @@ export function calculateDaLiuRen(date: Date, shichen?: string): DaLiuRenResult 
   const guiZhi = getGuiZhi(dayGan, shiZhi);
   // 天盘上贵人所在的地盘位置
   const guiPosOnEarth = tianPan.indexOf(guiZhi);
-  const guiShunSet = new Set([9, 10, 11, 0, 1, 2]);
+  const guiShunSet = new Set([0, 1, 2, 3, 4, 11]);
   const guiDirection: '顺' | '逆' = guiShunSet.has(guiPosOnEarth) ? '顺' : '逆';
   const tianJiangArr = arrangeTianJiangByPos(guiPosOnEarth);
 
@@ -1246,6 +1522,13 @@ export function calculateDaLiuRen(date: Date, shichen?: string): DaLiuRenResult 
 
   // 四柱
   const siZhu = getSiZhu(date, shiZhi);
+
+  // 德煞
+  const lunarMonth = lunar.getMonth();
+  const deSha = getDeShaInfo(dayGan, dayZhi, shiZhi, lunarMonth);
+
+  // 四课不全
+  const siKeBuQuan = checkSiKeBuQuan(siKe, dayGan, dayZhi);
 
   return {
     solarDate: solar.toYmd(),
@@ -1264,6 +1547,8 @@ export function calculateDaLiuRen(date: Date, shichen?: string): DaLiuRenResult 
     guiDirection,
     keTi,
     siZhu,
+    deSha,
+    siKeBuQuan,
   };
 }
 

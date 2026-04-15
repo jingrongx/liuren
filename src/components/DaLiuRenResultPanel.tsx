@@ -5,11 +5,15 @@ import {
   ZHI_WU_XING,
   GAN_WU_XING,
   ZHI_CHONG,
+  ZHI_LIU_HE,
+  ZHI_LIU_HAI,
+  ZHI_PO,
   getSanChuanTianJiang,
   getSanChuanWuXing,
   wuxingRelation,
   getLeiShen,
   getSanChuanDetail,
+  isKongWang,
 } from '../utils/daLiuRen';
 import AIAnalysisButton from './AIAnalysisButton';
 import AISettingsButton from './AISettingsButton';
@@ -286,6 +290,119 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
                 <div className="text-gray-500">{zhi}</div>
                 <div className={`font-medium ${isGood ? 'text-red-600' : 'text-gray-800'}`}>
                   {jiangInfo?.nature}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 德煞信息 */}
+      <div className="bg-gray-50 rounded-lg p-4 mb-4">
+        <h4 className="font-bold text-gray-800 mb-3">德煞</h4>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm">
+          {[
+            { label: '天德', value: result.deSha.tianDe, color: 'text-green-600' },
+            { label: '月德', value: result.deSha.yueDe, color: 'text-green-600' },
+            { label: '日德', value: `${result.deSha.riDe}（${result.dayGan}禄）`, color: 'text-green-600' },
+            { label: '驿马', value: result.deSha.yiMa, color: 'text-blue-600' },
+            { label: '桃花', value: result.deSha.taoHua, color: 'text-pink-600' },
+            { label: '华盖', value: result.deSha.huaGai, color: 'text-purple-600' },
+            { label: '劫煞', value: result.deSha.jieSha, color: 'text-red-600' },
+            { label: '灾煞', value: result.deSha.zaiSha, color: 'text-red-600' },
+            { label: '天乙贵人', value: result.deSha.tianYiGuiRen, color: 'text-amber-600' },
+          ].map((item) => (
+            <div key={item.label} className="flex items-center gap-2 bg-white rounded px-2 py-1.5 border">
+              <span className="text-gray-500 text-xs shrink-0">{item.label}</span>
+              <span className={`font-bold ${item.color}`}>{item.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 空亡 */}
+      <div className="bg-gray-50 rounded-lg p-4 mb-4">
+        <h4 className="font-bold text-gray-800 mb-3">空亡</h4>
+        <div className="flex items-center gap-3">
+          <div className="flex gap-2">
+            {result.deSha.kongWang.map((kw) => (
+              <span key={kw} className="px-3 py-1 bg-gray-200 text-gray-600 rounded font-bold text-lg">
+                {kw}
+              </span>
+            ))}
+          </div>
+          <span className="text-xs text-gray-400">日干支{result.dayGanZhi}旬空</span>
+        </div>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {[result.sanChuan.chu, result.sanChuan.zhong, result.sanChuan.mo].map((zhi, idx) => {
+            const isKW = isKongWang(zhi, result.dayGan, result.dayZhi);
+            const label = idx === 0 ? '初传' : idx === 1 ? '中传' : '末传';
+            return (
+              <span key={label} className={`text-xs px-1.5 py-0.5 rounded ${isKW ? 'bg-gray-300 text-gray-700 font-bold' : 'bg-gray-100 text-gray-500'}`}>
+                {label}{zhi}{isKW ? '（空）' : ''}
+              </span>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 四课不全提示 */}
+      {result.siKeBuQuan.isBuQuan && (
+        <div className="bg-amber-50 rounded-lg p-4 mb-4 border border-amber-200">
+          <h4 className="font-bold text-amber-800 mb-1">四课不全</h4>
+          <p className="text-sm text-amber-700">{result.siKeBuQuan.reason}</p>
+        </div>
+      )}
+
+      {/* 三传刑冲合害 */}
+      <div className="bg-gray-50 rounded-lg p-4 mb-4">
+        <h4 className="font-bold text-gray-800 mb-3">三传刑冲合害</h4>
+        <div className="grid grid-cols-1 gap-2 text-sm">
+          {[
+            { label: '初→中', from: sanChuan.chu, to: sanChuan.zhong },
+            { label: '中→末', from: sanChuan.zhong, to: sanChuan.mo },
+            { label: '初→末', from: sanChuan.chu, to: sanChuan.mo },
+          ].map((pair) => {
+            const tags: string[] = [];
+            if (ZHI_CHONG[pair.from] === pair.to) tags.push('冲');
+            if (ZHI_LIU_HE[pair.from]?.he === pair.to) tags.push(`合${ZHI_LIU_HE[pair.from].wuxing}`);
+            if (ZHI_LIU_HAI[pair.from] === pair.to) tags.push('害');
+            if (ZHI_PO[pair.from] === pair.to) tags.push('破');
+            const xingResult = (() => {
+              const xingMap: Record<string, string> = {
+                '子': '卯', '卯': '子', '寅': '巳', '巳': '申', '申': '寅',
+                '丑': '戌', '戌': '未', '未': '丑',
+              };
+              return xingMap[pair.from] === pair.to ? '刑' : '';
+            })();
+            if (xingResult) tags.push(xingResult);
+            if (new Set(['辰', '午', '酉', '亥']).has(pair.from) && pair.from === pair.to) tags.push('自刑');
+
+            const wxRel = wuxingRelation(ZHI_WU_XING[pair.from] || '', ZHI_WU_XING[pair.to] || '');
+            if (wxRel === '生') tags.push('生');
+            if (wxRel === '克') tags.push('克');
+
+            return (
+              <div key={pair.label} className="flex items-center gap-2 bg-white rounded px-3 py-2 border">
+                <span className="text-gray-500 text-xs shrink-0">{pair.label}</span>
+                <span className="font-bold text-gray-800">{pair.from}→{pair.to}</span>
+                <div className="flex gap-1 flex-wrap">
+                  {tags.length > 0 ? tags.map((tag, i) => (
+                    <span key={i} className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                      tag === '冲' ? 'bg-red-100 text-red-700' :
+                      tag.startsWith('合') ? 'bg-blue-100 text-blue-700' :
+                      tag === '害' ? 'bg-orange-100 text-orange-700' :
+                      tag === '破' ? 'bg-yellow-100 text-yellow-700' :
+                      tag === '刑' || tag === '自刑' ? 'bg-red-100 text-red-700' :
+                      tag === '生' ? 'bg-green-100 text-green-700' :
+                      tag === '克' ? 'bg-red-100 text-red-700' :
+                      'bg-gray-100 text-gray-700'
+                    }`}>
+                      {tag}
+                    </span>
+                  )) : (
+                    <span className="text-xs text-gray-400">比和</span>
+                  )}
                 </div>
               </div>
             );

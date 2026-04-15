@@ -1,4 +1,4 @@
-import { DaLiuRenResult, GAN_WU_XING, ZHI_WU_XING, TIAN_JIANG, getSanChuanTianJiang, getSanChuanWuXing, getLeiShen, wuxingRelation, getSanChuanDetail } from './daLiuRen';
+import { DaLiuRenResult, GAN_WU_XING, ZHI_WU_XING, TIAN_JIANG, ZHI_CHONG, ZHI_LIU_HE, ZHI_LIU_HAI, ZHI_PO, getSanChuanTianJiang, getSanChuanWuXing, getLeiShen, wuxingRelation, getSanChuanDetail, isKongWang } from './daLiuRen';
 import { DivinationResult } from './divination';
 
 export function generateDaLiuRenPrompt(result: DaLiuRenResult): string {
@@ -73,6 +73,45 @@ export function generateDaLiuRenPrompt(result: DaLiuRenResult): string {
       const isSC = zhi === sanChuan.chu || zhi === sanChuan.zhong || zhi === sanChuan.mo;
       return `- ${jiang}临${result.diPan[idx]}（天盘${zhi}）${jiangInfo ? `，${jiangInfo.nature === '吉' ? '吉将' : '凶将'}：${jiangInfo.desc}` : ''}${isSC ? ' ★在三传中' : ''}`;
     }),
+    '',
+    '## 德煞',
+    `- 天德：${result.deSha.tianDe}`,
+    `- 月德：${result.deSha.yueDe}`,
+    `- 日德：${result.deSha.riDe}（${result.dayGan}禄）`,
+    `- 驿马：${result.deSha.yiMa}`,
+    `- 桃花：${result.deSha.taoHua}`,
+    `- 华盖：${result.deSha.huaGai}`,
+    `- 劫煞：${result.deSha.jieSha}`,
+    `- 灾煞：${result.deSha.zaiSha}`,
+    `- 天乙贵人：${result.deSha.tianYiGuiRen}`,
+    '',
+    '## 空亡',
+    `- 空亡地支：${result.deSha.kongWang.join('、')}`,
+    `- 初传${sanChuan.chu}${isKongWang(sanChuan.chu, result.dayGan, result.dayZhi) ? '落空亡' : '不落空亡'}`,
+    `- 中传${sanChuan.zhong}${isKongWang(sanChuan.zhong, result.dayGan, result.dayZhi) ? '落空亡' : '不落空亡'}`,
+    `- 末传${sanChuan.mo}${isKongWang(sanChuan.mo, result.dayGan, result.dayZhi) ? '落空亡' : '不落空亡'}`,
+    '',
+    '## 三传刑冲合害',
+    ...([
+      { label: '初传→中传', from: sanChuan.chu, to: sanChuan.zhong },
+      { label: '中传→末传', from: sanChuan.zhong, to: sanChuan.mo },
+      { label: '初传→末传', from: sanChuan.chu, to: sanChuan.mo },
+    ] as const).map(pair => {
+      const tags: string[] = [];
+      if (ZHI_CHONG[pair.from] === pair.to) tags.push('冲');
+      if (ZHI_LIU_HE[pair.from]?.he === pair.to) tags.push(`六合（合${ZHI_LIU_HE[pair.from].wuxing}）`);
+      if (ZHI_LIU_HAI[pair.from] === pair.to) tags.push('害');
+      if (ZHI_PO[pair.from] === pair.to) tags.push('破');
+      const xingMap: Record<string, string> = { '子': '卯', '卯': '子', '寅': '巳', '巳': '申', '申': '寅', '丑': '戌', '戌': '未', '未': '丑' };
+      if (xingMap[pair.from] === pair.to) tags.push('刑');
+      if (new Set(['辰', '午', '酉', '亥']).has(pair.from) && pair.from === pair.to) tags.push('自刑');
+      const wxRel = wuxingRelation(ZHI_WU_XING[pair.from] || '', ZHI_WU_XING[pair.to] || '');
+      if (wxRel === '生') tags.push('生');
+      if (wxRel === '克') tags.push('克');
+      return `- ${pair.label}（${pair.from}→${pair.to}）：${tags.length > 0 ? tags.join('、') : '比和'}`;
+    }),
+    result.siKeBuQuan.isBuQuan ? '' : '',
+    result.siKeBuQuan.isBuQuan ? `## 四课不全\n- ${result.siKeBuQuan.reason}` : '',
     '',
     '请根据以上完整数据，给出详细、通俗的解读。',
   ];
