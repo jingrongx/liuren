@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Sparkles, X, Copy, Check, Loader2 } from 'lucide-react';
+import { Sparkles, X, Copy, Check, Loader2, User, Calendar, Venus, Mars } from 'lucide-react';
 import { loadConfig, saveConfig, DEFAULT_CONFIG } from './AISettingsButton';
 
 interface AIAnalysisButtonProps {
@@ -16,6 +16,11 @@ const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({ prompt }) => {
   const [showPrompt, setShowPrompt] = useState(true);
   const [responseCopied, setResponseCopied] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [userQuestion, setUserQuestion] = useState<string>('');
+  const [userInfo, setUserInfo] = useState({
+    gender: '',
+    birthDate: '',
+  });
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const handleCopy = useCallback(() => {
@@ -46,13 +51,29 @@ const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({ prompt }) => {
       .replace(/<p><\/p>/g, '');
   };
 
-  const handleAIAnalyze = async () => {
-    setShowModal(true);
-
-    if (!config.apiKey) {
-      return;
+  const getFullPrompt = () => {
+    let fullPrompt = prompt;
+    
+    // 添加用户个人信息
+    if (userInfo.gender || userInfo.birthDate) {
+      fullPrompt += '\n\n## 求测人信息\n';
+      if (userInfo.gender) {
+        fullPrompt += `- 性别：${userInfo.gender}\n`;
+      }
+      if (userInfo.birthDate) {
+        fullPrompt += `- 出生日期：${userInfo.birthDate}\n`;
+      }
     }
+    
+    // 添加用户问题
+    if (userQuestion) {
+      fullPrompt += `\n\n## 求测问题\n${userQuestion}\n`;
+    }
+    
+    return fullPrompt;
+  };
 
+  const handleAIAnalyze = async () => {
     setIsLoading(true);
     setIsStreaming(true);
     setError('');
@@ -66,6 +87,8 @@ const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({ prompt }) => {
     abortControllerRef.current = abortController;
 
     try {
+      const fullPrompt = getFullPrompt();
+      
       const response = await fetch(`${config.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
@@ -74,7 +97,7 @@ const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({ prompt }) => {
         },
         body: JSON.stringify({
           model: config.model,
-          messages: [{ role: 'user', content: prompt }],
+          messages: [{ role: 'user', content: fullPrompt }],
           stream: true,
         }),
         signal: abortController.signal,
@@ -136,7 +159,7 @@ const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({ prompt }) => {
   return (
     <>
       <button
-        onClick={handleAIAnalyze}
+        onClick={() => setShowModal(true)}
         className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-bold text-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
       >
         <Sparkles className="w-6 h-6" />
@@ -183,7 +206,10 @@ const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({ prompt }) => {
                     <span className="text-xs">{showPrompt ? '▲ 收起' : '▼ 展开'}</span>
                   </button>
                   <button
-                    onClick={handleCopy}
+                    onClick={() => navigator.clipboard.writeText(getFullPrompt()).then(() => {
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    })}
                     className="px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-md text-sm hover:bg-purple-100 flex items-center gap-1 text-purple-700 font-medium"
                   >
                     {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -192,10 +218,78 @@ const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({ prompt }) => {
                 </div>
                 {showPrompt && (
                   <div className="bg-gray-50 rounded-lg p-4">
-                    <pre className="whitespace-pre-wrap text-sm text-gray-700">{prompt}</pre>
+                    <pre className="whitespace-pre-wrap text-sm text-gray-700">{getFullPrompt()}</pre>
                   </div>
                 )}
               </div>
+
+              {/* 用户信息输入 */}
+              <div className="mb-4">
+                <h3 className="text-lg font-bold text-gray-800 mb-3">个人信息（选填）</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+                      <Mars className="w-4 h-4" />
+                      性别
+                    </label>
+                    <select
+                      value={userInfo.gender}
+                      onChange={(e) => setUserInfo(prev => ({ ...prev, gender: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="">请选择</option>
+                      <option value="男">男</option>
+                      <option value="女">女</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      出生日期
+                    </label>
+                    <input
+                      type="date"
+                      value={userInfo.birthDate}
+                      onChange={(e) => setUserInfo(prev => ({ ...prev, birthDate: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 用户问题输入 */}
+              <div className="mb-4">
+                <h3 className="text-lg font-bold text-gray-800 mb-2">求测问题</h3>
+                <textarea
+                  value={userQuestion}
+                  onChange={(e) => setUserQuestion(e.target.value)}
+                  placeholder="请输入您想要咨询的具体问题...（例如：最近事业发展如何？感情状况怎样？）"
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                />
+              </div>
+
+              {config.apiKey && (
+                <div className="mb-4">
+                  <button
+                    onClick={handleAIAnalyze}
+                    className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-bold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                    disabled={isLoading || isStreaming}
+                  >
+                    {isLoading || isStreaming ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        解读中...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-5 h-5" />
+                        开始 AI 解读
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
 
               {config.apiKey && (
                 <>
