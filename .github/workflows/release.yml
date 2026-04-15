@@ -38,6 +38,18 @@ jobs:
       - name: Sync to Android
         run: npx cap sync android
 
+      - name: Generate keystore
+        run: |
+          keytool -genkeypair -v \
+            -keystore android/app/release.keystore \
+            -alias liuren \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass liuren123 \
+            -keypass liuren123 \
+            -dname "CN=Liuren, OU=Dev, O=Liuren, L=Beijing, ST=Beijing, C=CN"
+
       - name: Build APK
         run: |
           cd android
