@@ -8,7 +8,7 @@ interface AIAnalysisButtonProps {
 
 const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({ prompt }) => {
   const [showModal, setShowModal] = useState(false);
-  const [config] = useState(loadConfig);
+  const [config] = useState(loadConfig());
   const [aiResponse, setAiResponse] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
