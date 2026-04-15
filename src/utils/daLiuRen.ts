@@ -659,19 +659,34 @@ function bieZe(siKe: Ke[], dayGan: string, tianPan: string[]): Chuan | null {
 }
 
 // ---- 第七门：八专法 ----
-// 日干寄宫与日支相同时使用
-function baZhuan(siKe: Ke[], dayGan: string, dayZhi: string): Chuan | null {
+// 日干寄宫与日支相同时使用（干支同位、四课两备）
+// 口诀：阳日顺数，阴日逆数；干上神起，数三位取初传
+function baZhuan(siKe: Ke[], dayGan: string, dayZhi: string, tianPan: string[]): Chuan | null {
   const ganJiGong = GAN_JI_GONG[dayGan];
   if (ganJiGong !== dayZhi) return null;
 
-  // 阳日：取第三课上神为初传
-  // 阴日：取第一课上神为初传
   const ganYy = GAN_YIN_YANG[dayGan];
-  const chu = ganYy === '阳' ? siKe[2].shang : siKe[0].shang;
+  // 干上神 = 第一课的上神
+  const ganShangShen = siKe[0].shang;
+  const shangIdx = zhiIndex(ganShangShen);
+
+  let chu: string;
+  if (ganYy === '阳') {
+    // 阳日：从干上神在天盘中顺数3位取初传
+    chu = DI_ZHI[(shangIdx + 3) % 12];
+  } else {
+    // 阴日：从干上神在天盘中逆数3位取初传
+    chu = DI_ZHI[(shangIdx - 3 + 12) % 12];
+  }
+
+  // 中传取初传之上神（地盘chu上的天盘），末传取中传之上神
+  const zhong = tianPan[zhiIndex(chu)];
+  const mo = tianPan[zhiIndex(zhong)];
+
   return {
-    chu, zhong: '', mo: '',
+    chu, zhong, mo,
     men: '八专',
-    desc: `八专法，干支同位（${dayGan}寄${ganJiGong}=${dayZhi}），${ganYy}日取${chu}为初传`
+    desc: `八专法，干支同位（${dayGan}寄${ganJiGong}=${dayZhi}），${ganYy}日从干上神${ganShangShen}${ganYy === '阳' ? '顺' : '逆'}数3位取${chu}为初传，中传${zhong}，末传${mo}`
   };
 }
 
@@ -810,17 +825,17 @@ export function calculateSanChuan(siKe: Ke[], dayGan: string, dayZhi: string, ti
   const ykResult = yaoKe(siKe, dayGan);
   if (ykResult) return fillZhongMo(ykResult, tianPan);
 
-  // 第五门：昴星
+  // 第五门：八专（干支同位时，优先于昴星）
+  const bzhResult = baZhuan(siKe, dayGan, dayZhi, tianPan);
+  if (bzhResult) return bzhResult;
+
+  // 第六门：昴星
   const mxResult = maoXing(siKe, dayGan, tianPan);
   if (mxResult) return fillZhongMo(mxResult, tianPan);
 
-  // 第六门：别责（四课不全时）
+  // 第七门：别责（四课不全时）
   const bzResult = bieZe(siKe, dayGan, tianPan);
   if (bzResult) return fillZhongMo(bzResult, tianPan);
-
-  // 第七门：八专（干支同位时）
-  const bzhResult = baZhuan(siKe, dayGan, dayZhi);
-  if (bzhResult) return fillZhongMo(bzhResult, tianPan);
 
   // 兜底
   return fillZhongMo({
