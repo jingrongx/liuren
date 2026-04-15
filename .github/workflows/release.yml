@@ -100,6 +100,31 @@ jobs:
             echo "version=$VERSION" >> $GITHUB_OUTPUT
           fi
 
+      - name: Generate release notes
+        id: generate-notes
+        run: |
+          # 获取上一个 tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          # 生成更新内容，基于 git 提交历史
+          if [ -n "$LAST_TAG" ]; then
+            # 从上一个 tag 到当前的所有提交
+            RELEASE_NOTES=$(git log $LAST_TAG..HEAD --pretty=format:"- %s" --grep="^(feat\|fix\|refactor\|docs\|perf)")
+          else
+            # 如果没有 tag，获取所有提交
+            RELEASE_NOTES=$(git log --pretty=format:"- %s" --grep="^(feat\|fix\|refactor\|docs\|perf)")
+          fi
+          
+          # 如果没有符合条件的提交，使用默认内容
+          if [ -z "$RELEASE_NOTES" ]; then
+            RELEASE_NOTES="- 自动更新版本"
+          fi
+          
+          # 保存到环境变量
+          echo "release_notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
@@ -107,8 +132,13 @@ jobs:
           tag_name: v${{ steps.get-version.outputs.version }}
           name: Release v${{ steps.get-version.outputs.version }}
           body: |
-            ## What's new
-            - Automated release via GitHub Actions
-            - Latest build of the app
+            # 版本更新
+            
+            ## 更新内容
+            ${{ steps.generate-notes.outputs.release_notes }}
+            
+            ## 下载链接
+            - [GitHub 下载](https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/app-release.apk)
+            - [国内加速下载](https://ghproxy.net/https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/app-release.apk)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
