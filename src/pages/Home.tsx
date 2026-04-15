@@ -6,7 +6,7 @@ import ShichenTable from '../components/ShichenTable';
 import FutureGuaTable from '../components/FutureGuaTable';
 import AISettingsButton from '../components/AISettingsButton';
 import { calculateDivination, shichenNames, DivinationResult } from '../utils/divination';
-import { getLatestApkDownloadUrl } from '../lib/downloadUtils';
+import { getLatestApkDownloadUrl, getGhproxyApkDownloadUrl } from '../lib/downloadUtils';
 
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -58,7 +58,7 @@ export default function Home() {
               官网
             </a>
             <a
-              href="https://ghproxy.net/https://github.com/jingrongx/liuren/releases/latest/download/app-release.apk"
+              href={getGhproxyApkDownloadUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg hover:from-green-600 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"

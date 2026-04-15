@@ -5,7 +5,7 @@ import SiKeSanChuan from '../components/SiKeSanChuan';
 import DaLiuRenResultPanel from '../components/DaLiuRenResultPanel';
 import AISettingsButton from '../components/AISettingsButton';
 import { calculateDaLiuRen, DaLiuRenResult, DI_ZHI } from '../utils/daLiuRen';
-import { getLatestApkDownloadUrl } from '../lib/downloadUtils';
+import { getLatestApkDownloadUrl, getGhproxyApkDownloadUrl } from '../lib/downloadUtils';
 
 const shichenOptions = ['当前', '子时', '丑时', '寅时', '卯时', '辰时', '巳时', '午时', '未时', '申时', '酉时', '戌时', '亥时'];
 
@@ -60,7 +60,7 @@ export default function DaLiuRenPage() {
               官网
             </a>
             <a
-              href="https://ghproxy.net/https://github.com/jingrongx/liuren/releases/latest/download/app-release.apk"
+              href={getGhproxyApkDownloadUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg hover:from-green-600 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
