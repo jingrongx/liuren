@@ -1108,33 +1108,32 @@ function bieZe(siKe: Ke[], dayGan: string, dayZhi: string, tianPan: string[]): C
 
 // ---- 第七门：八专法 ----
 // 日干寄宫与日支相同时使用（干支同位、四课两备）
-// 口诀：阳日顺数，阴日逆数；干上神起，数三位取初传
+// 刚日（阳日）：第一课上神顺数三位为初传
+// 柔日（阴日）：第四课上神逆数三位为初传
+// 中末俱用干上神
 function baZhuan(siKe: Ke[], dayGan: string, dayZhi: string, tianPan: string[]): Chuan | null {
   const ganJiGong = GAN_JI_GONG[dayGan];
   if (ganJiGong !== dayZhi) return null;
 
   const ganYy = GAN_YIN_YANG[dayGan];
-  // 干上神 = 第一课的上神
   const ganShangShen = siKe[0].shang;
-  const shangIdx = zhiIndex(ganShangShen);
 
   let chu: string;
   if (ganYy === '阳') {
-    // 阳日：从干上神在天盘中顺数3位取初传
+    const shangIdx = zhiIndex(siKe[0].shang);
     chu = DI_ZHI[(shangIdx + 3) % 12];
   } else {
-    // 阴日：从干上神在天盘中逆数3位取初传
+    const shangIdx = zhiIndex(siKe[3].shang);
     chu = DI_ZHI[(shangIdx - 3 + 12) % 12];
   }
 
-  // 中传取初传之上神（地盘chu上的天盘），末传取中传之上神
-  const zhong = tianPan[zhiIndex(chu)];
-  const mo = tianPan[zhiIndex(zhong)];
+  const zhong = ganShangShen;
+  const mo = ganShangShen;
 
   return {
     chu, zhong, mo,
     men: '八专',
-    desc: `八专法，干支同位（${dayGan}寄${ganJiGong}=${dayZhi}），${ganYy}日从干上神${ganShangShen}${ganYy === '阳' ? '顺' : '逆'}数3位取${chu}为初传，中传${zhong}，末传${mo}`
+    desc: `八专法，干支同位（${dayGan}寄${ganJiGong}=${dayZhi}），${ganYy === '阳' ? '刚' : '柔'}日从${ganYy === '阳' ? '第一课上神' : '第四课上神'}${ganYy === '阳' ? '顺' : '逆'}数3位取${chu}为初传，中末俱用干上神${ganShangShen}`
   };
 }
 
