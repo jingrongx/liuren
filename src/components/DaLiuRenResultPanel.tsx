@@ -8,6 +8,10 @@ import {
   ZHI_LIU_HE,
   ZHI_LIU_HAI,
   ZHI_PO,
+  ZHI_AN_HE,
+  GAN_WU_HE,
+  ZHI_CANG_GAN,
+  canHuaQi,
   getSanChuanTianJiang,
   getSanChuanWuXing,
   wuxingRelation,
@@ -311,7 +315,8 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
             { label: '劫煞', value: result.deSha.jieSha, color: 'text-red-600' },
             { label: '灾煞', value: result.deSha.zaiSha, color: 'text-red-600' },
             { label: '天乙贵人', value: result.deSha.tianYiGuiRen, color: 'text-amber-600' },
-          ].map((item) => (
+            { label: '天干五合', value: result.deSha.ganWuHe.he ? `${result.dayGan}${result.deSha.ganWuHe.he}合化${result.deSha.ganWuHe.huaQi}${canHuaQi(result.dayGan, result.deSha.ganWuHe.he, result.deSha.lunarMonth) ? '（可化）' : '（未化）'}` : '', color: 'text-indigo-600' },
+          ].filter(item => item.value).map((item) => (
             <div key={item.label} className="flex items-center gap-2 bg-white rounded px-2 py-1.5 border">
               <span className="text-gray-500 text-xs shrink-0">{item.label}</span>
               <span className={`font-bold ${item.color}`}>{item.value}</span>
@@ -323,23 +328,27 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
       {/* 空亡 */}
       <div className="bg-gray-50 rounded-lg p-4 mb-4">
         <h4 className="font-bold text-gray-800 mb-3">空亡</h4>
-        <div className="flex items-center gap-3">
-          <div className="flex gap-2">
-            {result.deSha.kongWang.map((kw) => (
-              <span key={kw} className="px-3 py-1 bg-gray-200 text-gray-600 rounded font-bold text-lg">
-                {kw}
+        <div className="space-y-2">
+          {result.deSha.kongWangDetail.map((kw) => (
+            <div key={kw.zhi} className="flex items-center gap-2">
+              <span className={`px-3 py-1 rounded font-bold text-lg ${kw.isZhenKong ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
+                {kw.zhi}
               </span>
-            ))}
-          </div>
-          <span className="text-xs text-gray-400">日干支{result.dayGanZhi}旬空</span>
+              <span className={`text-xs px-1.5 py-0.5 rounded ${kw.isZhenKong ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-500'}`}>
+                {kw.isZhenKong ? '真空' : '假空'}
+              </span>
+              <span className="text-xs text-gray-500">{kw.reason.replace(/^[真假]空（/, '').replace('）', '')}</span>
+            </div>
+          ))}
         </div>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {[result.sanChuan.chu, result.sanChuan.zhong, result.sanChuan.mo].map((zhi, idx) => {
             const isKW = isKongWang(zhi, result.dayGan, result.dayZhi);
+            const kwDetail = result.deSha.kongWangDetail.find(k => k.zhi === zhi);
             const label = idx === 0 ? '初传' : idx === 1 ? '中传' : '末传';
             return (
-              <span key={label} className={`text-xs px-1.5 py-0.5 rounded ${isKW ? 'bg-gray-300 text-gray-700 font-bold' : 'bg-gray-100 text-gray-500'}`}>
-                {label}{zhi}{isKW ? '（空）' : ''}
+              <span key={label} className={`text-xs px-1.5 py-0.5 rounded ${isKW ? (kwDetail?.isZhenKong ? 'bg-red-200 text-red-700 font-bold' : 'bg-amber-200 text-amber-700 font-bold') : 'bg-gray-100 text-gray-500'}`}>
+                {label}{zhi}{isKW ? (kwDetail?.isZhenKong ? '（真空）' : '（假空）') : ''}
               </span>
             );
           })}
@@ -354,6 +363,35 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
         </div>
       )}
 
+      {/* 地支藏干 */}
+      <div className="bg-gray-50 rounded-lg p-4 mb-4">
+        <h4 className="font-bold text-gray-800 mb-3">地支藏干</h4>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm">
+          {[result.sanChuan.chu, result.sanChuan.zhong, result.sanChuan.mo].map((zhi, idx) => {
+            const cangGan = ZHI_CANG_GAN[zhi] || [];
+            const label = idx === 0 ? '初传' : idx === 1 ? '中传' : '末传';
+            return (
+              <div key={label} className="bg-white rounded px-3 py-2 border">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-gray-500 text-xs">{label}</span>
+                  <span className="font-bold text-gray-800">{zhi}</span>
+                  <span className="text-xs text-gray-400">（{ZHI_WU_XING[zhi]}）</span>
+                </div>
+                <div className="flex gap-1">
+                  {cangGan.map((gan, gi) => (
+                    <span key={gan} className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                      gi === 0 ? 'bg-blue-50 text-blue-700' : gi === 1 ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-600'
+                    }`}>
+                      {gan}{gi === 0 ? '本' : gi === 1 ? '中' : '余'}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* 三传刑冲合害 */}
       <div className="bg-gray-50 rounded-lg p-4 mb-4">
         <h4 className="font-bold text-gray-800 mb-3">三传刑冲合害</h4>
@@ -366,6 +404,7 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
             const tags: string[] = [];
             if (ZHI_CHONG[pair.from] === pair.to) tags.push('冲');
             if (ZHI_LIU_HE[pair.from]?.he === pair.to) tags.push(`合${ZHI_LIU_HE[pair.from].wuxing}`);
+            if (ZHI_AN_HE[pair.from] === pair.to) tags.push('暗合');
             if (ZHI_LIU_HAI[pair.from] === pair.to) tags.push('害');
             if (ZHI_PO[pair.from] === pair.to) tags.push('破');
             const xingResult = (() => {
@@ -391,6 +430,7 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
                     <span key={i} className={`px-1.5 py-0.5 rounded text-xs font-medium ${
                       tag === '冲' ? 'bg-red-100 text-red-700' :
                       tag.startsWith('合') ? 'bg-blue-100 text-blue-700' :
+                      tag === '暗合' ? 'bg-indigo-100 text-indigo-700' :
                       tag === '害' ? 'bg-orange-100 text-orange-700' :
                       tag === '破' ? 'bg-yellow-100 text-yellow-700' :
                       tag === '刑' || tag === '自刑' ? 'bg-red-100 text-red-700' :

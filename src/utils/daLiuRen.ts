@@ -150,6 +150,99 @@ export const ZHI_PO: Record<string, string> = {
   '未': '戌', '戌': '未',
 };
 
+// 天干五合化气
+// 口诀：甲己合化土、乙庚合化金、丙辛合化水、丁壬合化木、戊癸合化火
+// 合化条件：两干相邻且月令生助化神
+export const GAN_WU_HE: Record<string, { he: string; huaQi: string }> = {
+  '甲': { he: '己', huaQi: '土' },
+  '己': { he: '甲', huaQi: '土' },
+  '乙': { he: '庚', huaQi: '金' },
+  '庚': { he: '乙', huaQi: '金' },
+  '丙': { he: '辛', huaQi: '水' },
+  '辛': { he: '丙', huaQi: '水' },
+  '丁': { he: '壬', huaQi: '木' },
+  '壬': { he: '丁', huaQi: '木' },
+  '戊': { he: '癸', huaQi: '火' },
+  '癸': { he: '戊', huaQi: '火' },
+};
+
+// 地支暗合
+// 寅丑暗合（寅中甲与丑中己合）、亥午暗合（亥中壬与午中丁合）
+export const ZHI_AN_HE: Record<string, string> = {
+  '寅': '丑', '丑': '寅',
+  '亥': '午', '午': '亥',
+};
+
+// 地支藏干
+// 子藏癸，丑藏己癸辛，寅藏甲丙戊，卯藏乙，辰藏戊乙癸，巳藏丙庚戊，
+// 午藏丁己，未藏己丁乙，申藏庚壬戊，酉藏辛，戌藏戊辛丁，亥藏壬甲
+export const ZHI_CANG_GAN: Record<string, string[]> = {
+  '子': ['癸'],
+  '丑': ['己', '癸', '辛'],
+  '寅': ['甲', '丙', '戊'],
+  '卯': ['乙'],
+  '辰': ['戊', '乙', '癸'],
+  '巳': ['丙', '庚', '戊'],
+  '午': ['丁', '己'],
+  '未': ['己', '丁', '乙'],
+  '申': ['庚', '壬', '戊'],
+  '酉': ['辛'],
+  '戌': ['戊', '辛', '丁'],
+  '亥': ['壬', '甲'],
+};
+
+// 藏干本气（第一个藏干为本气）
+export function getBenQi(zhi: string): string {
+  return ZHI_CANG_GAN[zhi]?.[0] || '';
+}
+
+// 藏干中气（第二个藏干为中气）
+export function getCangGanZhongQi(zhi: string): string {
+  return ZHI_CANG_GAN[zhi]?.[1] || '';
+}
+
+// 藏干余气（第三个藏干为余气）
+export function getYuQi(zhi: string): string {
+  return ZHI_CANG_GAN[zhi]?.[2] || '';
+}
+
+// 天干合化条件判断
+// 五合化气需月令生助化神，且两干在四柱中相邻
+export function canHuaQi(gan1: string, gan2: string, lunarMonth: number): boolean {
+  const heInfo = GAN_WU_HE[gan1];
+  if (!heInfo || heInfo.he !== gan2) return false;
+
+  const huaQiWx = heInfo.huaQi;
+  const monthZhiMap: Record<number, string> = {
+    1: '寅', 2: '卯', 3: '辰', 4: '巳', 5: '午', 6: '未',
+    7: '申', 8: '酉', 9: '戌', 10: '亥', 11: '子', 12: '丑',
+  };
+  const monthZhi = monthZhiMap[lunarMonth] || '';
+  const monthWx = ZHI_WU_XING[monthZhi] || '';
+  const rel = wuxingRelation(monthWx, huaQiWx);
+  return rel === '生' || rel === '比';
+}
+
+// 年命与行年
+// 年命：本命地支（出生年地支）
+// 行年：按年龄推算的地支，男顺女逆
+export function getXingNian(birthYearZhi: string, age: number, gender: '男' | '女'): { nianMing: string; xingNian: string } {
+  const nianMing = birthYearZhi;
+  const birthIdx = DI_ZHI.indexOf(birthYearZhi);
+
+  let xingNianIdx: number;
+  if (gender === '男') {
+    xingNianIdx = (birthIdx + age) % 12;
+  } else {
+    xingNianIdx = (birthIdx - age + 12 * 100) % 12;
+  }
+
+  return {
+    nianMing,
+    xingNian: DI_ZHI[xingNianIdx],
+  };
+}
+
 // 五行生克关系
 export function wuxingRelation(wx1: string, wx2: string): string {
   const sheng: Record<string, string> = { '木': '火', '火': '土', '土': '金', '金': '水', '水': '木' };
@@ -416,6 +509,74 @@ export function isKongWang(zhi: string, dayGan: string, dayZhi: string): boolean
   return kw.includes(zhi);
 }
 
+// 旬空与真空区分
+// 真空（死空）：空亡地支在月令处于休囚状态，且不被冲、不被合、非日干禄马
+// 假空（活空）：空亡地支被冲、被合、或为日干禄马，虽空而有气
+export interface KongWangDetail {
+  zhi: string;
+  isZhenKong: boolean;
+  reason: string;
+}
+
+export function getKongWangDetail(
+  dayGan: string,
+  dayZhi: string,
+  tianPan: string[],
+  lunarMonth: number
+): KongWangDetail[] {
+  const kwList = getKongWang(dayGan, dayZhi);
+  const luZhi = RI_DE[dayGan] || '';
+  const maZhi = YI_MA[dayZhi] || '';
+
+  // 月令五行（农历月对应地支）
+  const monthZhiMap: Record<number, string> = {
+    1: '寅', 2: '卯', 3: '辰', 4: '巳', 5: '午', 6: '未',
+    7: '申', 8: '酉', 9: '戌', 10: '亥', 11: '子', 12: '丑',
+  };
+  const monthZhi = monthZhiMap[lunarMonth] || '';
+  const monthWx = ZHI_WU_XING[monthZhi] || '';
+
+  return kwList.map(zhi => {
+    const zhiWx = ZHI_WU_XING[zhi] || '';
+    const reasons: string[] = [];
+
+    // 检查是否被冲（天盘冲地盘或地盘冲天盘）
+    const chongZhi = ZHI_CHONG[zhi];
+    const isChong = tianPan[zhiIndex(chongZhi)] !== chongZhi;
+    if (isChong) reasons.push(`被${chongZhi}冲`);
+
+    // 检查是否被合（六合或暗合）
+    const liuHe = ZHI_LIU_HE[zhi]?.he;
+    const isLiuHe = liuHe && tianPan[zhiIndex(liuHe)] === liuHe;
+    if (isLiuHe) reasons.push(`与${liuHe}合`);
+
+    const anHe = ZHI_AN_HE[zhi];
+    const isAnHe = anHe && tianPan[zhiIndex(anHe)] === anHe;
+    if (isAnHe) reasons.push(`与${anHe}暗合`);
+
+    // 检查是否为日干禄马
+    if (zhi === luZhi) reasons.push('为日干禄神');
+    if (zhi === maZhi) reasons.push('为日支驿马');
+
+    // 检查月令旺相休囚
+    // 月令五行与空亡地支五行的关系：生/比为旺相，克/泄为休囚
+    const monthRel = wuxingRelation(monthWx, zhiWx);
+    const isWangXiang = monthRel === '生' || monthRel === '比';
+    if (isWangXiang) reasons.push(`月令${monthZhi}（${monthWx}）${monthRel}${zhiWx}，有气`);
+
+    // 判断真空/假空
+    const isZhenKong = reasons.length === 0;
+
+    return {
+      zhi,
+      isZhenKong,
+      reason: isZhenKong
+        ? '真空（月令休囚，无冲无合非禄马）'
+        : `假空（${reasons.join('，')}）`,
+    };
+  });
+}
+
 // ============================================================
 // 德煞
 // ============================================================
@@ -507,6 +668,7 @@ export const TIAN_YI_GUI_REN_YIN: Record<string, string> = {
 // 获取所有德煞信息
 export interface DeShaInfo {
   kongWang: string[];
+  kongWangDetail: KongWangDetail[];
   tianDe: string;
   yueDe: string;
   riDe: string;
@@ -516,10 +678,13 @@ export interface DeShaInfo {
   jieSha: string;
   zaiSha: string;
   tianYiGuiRen: string;
+  ganWuHe: { he: string; huaQi: string };
+  lunarMonth: number;
 }
 
-export function getDeShaInfo(dayGan: string, dayZhi: string, shiZhi: string, lunarMonth: number): DeShaInfo {
+export function getDeShaInfo(dayGan: string, dayZhi: string, shiZhi: string, lunarMonth: number, tianPan: string[]): DeShaInfo {
   const kongWang = getKongWang(dayGan, dayZhi);
+  const kongWangDetail = getKongWangDetail(dayGan, dayZhi, tianPan, lunarMonth);
   const tianDe = TIAN_DE[lunarMonth] || '';
   const yueDe = YUE_DE[lunarMonth] || '';
   const riDe = RI_DE[dayGan] || '';
@@ -531,9 +696,11 @@ export function getDeShaInfo(dayGan: string, dayZhi: string, shiZhi: string, lun
   const tianYiGuiRen = isDaytime(shiZhi)
     ? TIAN_YI_GUI_REN_YANG[dayGan] || ''
     : TIAN_YI_GUI_REN_YIN[dayGan] || '';
+  const ganWuHe = GAN_WU_HE[dayGan] || { he: '', huaQi: '' };
 
   return {
     kongWang,
+    kongWangDetail,
     tianDe,
     yueDe,
     riDe,
@@ -543,6 +710,8 @@ export function getDeShaInfo(dayGan: string, dayZhi: string, shiZhi: string, lun
     jieSha,
     zaiSha,
     tianYiGuiRen,
+    ganWuHe,
+    lunarMonth,
   };
 }
 
@@ -1189,6 +1358,69 @@ export function analyzeSanChuanGeju(sanChuan: Chuan, dayGan: string): string[] {
     geju.push('传中空亡');
   }
 
+  // 连茹：三传地支序号连续（顺连或逆连）
+  const chuIdx = DI_ZHI.indexOf(chu);
+  const zhongIdx = DI_ZHI.indexOf(zhong);
+  const moIdx = DI_ZHI.indexOf(mo);
+  if ((zhongIdx === (chuIdx + 1) % 12 && moIdx === (chuIdx + 2) % 12)) {
+    geju.push('顺连茹');
+  }
+  if ((zhongIdx === (chuIdx - 1 + 12) % 12 && moIdx === (chuIdx - 2 + 12) % 12)) {
+    geju.push('逆连茹');
+  }
+
+  // 间传：三传地支隔一位
+  if ((zhongIdx === (chuIdx + 2) % 12 && moIdx === (chuIdx + 4) % 12)) {
+    geju.push('顺间传');
+  }
+  if ((zhongIdx === (chuIdx - 2 + 12) % 12 && moIdx === (chuIdx - 4 + 12) % 12)) {
+    geju.push('逆间传');
+  }
+
+  // 铸印：初传为巳、中传为戌（火炼金成印）
+  if ((chu === '巳' && zhong === '戌') || (chu === '戌' && zhong === '巳')) {
+    geju.push('铸印');
+  }
+
+  // 斫轮：初传为卯、中传为申（木逢金斫成轮）
+  if ((chu === '卯' && zhong === '申') || (chu === '申' && zhong === '卯')) {
+    geju.push('斫轮');
+  }
+
+  // 乘轩：三传为寅午戌（火局乘轩）
+  if (new Set([chu, zhong, mo]).size === 3) {
+    const sanChuanSet = new Set([chu, zhong, mo]);
+    const sanHeGroups = [
+      new Set(['申', '子', '辰']),
+      new Set(['寅', '午', '戌']),
+      new Set(['巳', '酉', '丑']),
+      new Set(['亥', '卯', '未']),
+    ];
+    for (const group of sanHeGroups) {
+      if ([...group].every(z => sanChuanSet.has(z))) {
+        const groupWx = ZHI_WU_XING[[...group][0]];
+        const groupNames: Record<string, string> = { '水': '润下', '火': '炎上', '金': '从革', '木': '曲直' };
+        if (groupWx && groupNames[groupWx]) {
+          geju.push(`${groupNames[groupWx]}格`);
+        }
+      }
+    }
+  }
+
+  // 退茹：三传从长生气位退行
+  // 进茹：三传从长生气位进行
+  // 此处简化为三传序号递减
+  if (chuIdx > zhongIdx && zhongIdx > moIdx) {
+    if (!geju.includes('逆连茹') && !geju.includes('逆间传')) {
+      geju.push('退茹');
+    }
+  }
+  if (chuIdx < zhongIdx && zhongIdx < moIdx) {
+    if (!geju.includes('顺连茹') && !geju.includes('顺间传')) {
+      geju.push('进茹');
+    }
+  }
+
   return geju;
 }
 
@@ -1525,7 +1757,7 @@ export function calculateDaLiuRen(date: Date, shichen?: string): DaLiuRenResult 
 
   // 德煞
   const lunarMonth = lunar.getMonth();
-  const deSha = getDeShaInfo(dayGan, dayZhi, shiZhi, lunarMonth);
+  const deSha = getDeShaInfo(dayGan, dayZhi, shiZhi, lunarMonth, tianPan);
 
   // 四课不全
   const siKeBuQuan = checkSiKeBuQuan(siKe, dayGan, dayZhi);

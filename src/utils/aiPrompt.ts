@@ -1,4 +1,4 @@
-import { DaLiuRenResult, GAN_WU_XING, ZHI_WU_XING, TIAN_JIANG, ZHI_CHONG, ZHI_LIU_HE, ZHI_LIU_HAI, ZHI_PO, getSanChuanTianJiang, getSanChuanWuXing, getLeiShen, wuxingRelation, getSanChuanDetail, isKongWang } from './daLiuRen';
+import { DaLiuRenResult, GAN_WU_XING, ZHI_WU_XING, TIAN_JIANG, ZHI_CHONG, ZHI_LIU_HE, ZHI_LIU_HAI, ZHI_PO, ZHI_AN_HE, GAN_WU_HE, ZHI_CANG_GAN, canHuaQi, getSanChuanTianJiang, getSanChuanWuXing, getLeiShen, wuxingRelation, getSanChuanDetail, isKongWang } from './daLiuRen';
 import { DivinationResult } from './divination';
 
 export function generateDaLiuRenPrompt(result: DaLiuRenResult): string {
@@ -47,9 +47,9 @@ export function generateDaLiuRenPrompt(result: DaLiuRenResult): string {
     '',
     '## 三传',
     `- 取传方法：${sanChuan.men}（${sanChuan.desc}）`,
-    `- 初传：${scDetail.chu.zhi}（${scDetail.chu.wuxing}），天将${scDetail.chu.tianJiang}，长生十二神${scDetail.chu.changSheng || '无'}，类神${scDetail.chu.leiShen}`,
-    `- 中传：${scDetail.zhong.zhi}（${scDetail.zhong.wuxing}），天将${scDetail.zhong.tianJiang}，长生十二神${scDetail.zhong.changSheng || '无'}，类神${scDetail.zhong.leiShen}`,
-    `- 末传：${scDetail.mo.zhi}（${scDetail.mo.wuxing}），天将${scDetail.mo.tianJiang}，长生十二神${scDetail.mo.changSheng || '无'}，类神${scDetail.mo.leiShen}`,
+    `- 初传：${scDetail.chu.zhi}（${scDetail.chu.wuxing}），天将${scDetail.chu.tianJiang}，长生十二神${scDetail.chu.changSheng || '无'}，类神${scDetail.chu.leiShen}，藏干${ZHI_CANG_GAN[sanChuan.chu]?.join('') || '无'}`,
+    `- 中传：${scDetail.zhong.zhi}（${scDetail.zhong.wuxing}），天将${scDetail.zhong.tianJiang}，长生十二神${scDetail.zhong.changSheng || '无'}，类神${scDetail.zhong.leiShen}，藏干${ZHI_CANG_GAN[sanChuan.zhong]?.join('') || '无'}`,
+    `- 末传：${scDetail.mo.zhi}（${scDetail.mo.wuxing}），天将${scDetail.mo.tianJiang}，长生十二神${scDetail.mo.changSheng || '无'}，类神${scDetail.mo.leiShen}，藏干${ZHI_CANG_GAN[sanChuan.mo]?.join('') || '无'}`,
     '',
     '## 三传与日干关系',
     `- 初传${sanChuan.chu}（${scWuXing.chu}）${chuRelGan || '比'}日干${dayGan}（${ganWx}）`,
@@ -84,12 +84,16 @@ export function generateDaLiuRenPrompt(result: DaLiuRenResult): string {
     `- 劫煞：${result.deSha.jieSha}`,
     `- 灾煞：${result.deSha.zaiSha}`,
     `- 天乙贵人：${result.deSha.tianYiGuiRen}`,
+    `- 天干五合：${result.dayGan}${result.deSha.ganWuHe.he}合化${result.deSha.ganWuHe.huaQi}${canHuaQi(result.dayGan, result.deSha.ganWuHe.he, result.deSha.lunarMonth) ? '（月令生助化神，可化气）' : '（月令不助化神，未化气）'}`,
     '',
     '## 空亡',
     `- 空亡地支：${result.deSha.kongWang.join('、')}`,
-    `- 初传${sanChuan.chu}${isKongWang(sanChuan.chu, result.dayGan, result.dayZhi) ? '落空亡' : '不落空亡'}`,
-    `- 中传${sanChuan.zhong}${isKongWang(sanChuan.zhong, result.dayGan, result.dayZhi) ? '落空亡' : '不落空亡'}`,
-    `- 末传${sanChuan.mo}${isKongWang(sanChuan.mo, result.dayGan, result.dayZhi) ? '落空亡' : '不落空亡'}`,
+    ...result.deSha.kongWangDetail.map(kw =>
+      `- ${kw.zhi}：${kw.reason}`
+    ),
+    `- 初传${sanChuan.chu}${isKongWang(sanChuan.chu, result.dayGan, result.dayZhi) ? (result.deSha.kongWangDetail.find(k => k.zhi === sanChuan.chu)?.isZhenKong ? '落真空' : '落假空') : '不落空亡'}`,
+    `- 中传${sanChuan.zhong}${isKongWang(sanChuan.zhong, result.dayGan, result.dayZhi) ? (result.deSha.kongWangDetail.find(k => k.zhi === sanChuan.zhong)?.isZhenKong ? '落真空' : '落假空') : '不落空亡'}`,
+    `- 末传${sanChuan.mo}${isKongWang(sanChuan.mo, result.dayGan, result.dayZhi) ? (result.deSha.kongWangDetail.find(k => k.zhi === sanChuan.mo)?.isZhenKong ? '落真空' : '落假空') : '不落空亡'}`,
     '',
     '## 三传刑冲合害',
     ...([
@@ -100,6 +104,7 @@ export function generateDaLiuRenPrompt(result: DaLiuRenResult): string {
       const tags: string[] = [];
       if (ZHI_CHONG[pair.from] === pair.to) tags.push('冲');
       if (ZHI_LIU_HE[pair.from]?.he === pair.to) tags.push(`六合（合${ZHI_LIU_HE[pair.from].wuxing}）`);
+      if (ZHI_AN_HE[pair.from] === pair.to) tags.push('暗合');
       if (ZHI_LIU_HAI[pair.from] === pair.to) tags.push('害');
       if (ZHI_PO[pair.from] === pair.to) tags.push('破');
       const xingMap: Record<string, string> = { '子': '卯', '卯': '子', '寅': '巳', '巳': '申', '申': '寅', '丑': '戌', '戌': '未', '未': '丑' };
