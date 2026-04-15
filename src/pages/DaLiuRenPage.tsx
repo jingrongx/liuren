@@ -3,6 +3,7 @@ import { Calendar as CalendarIcon, RefreshCw } from 'lucide-react';
 import TianDiPan from '../components/TianDiPan';
 import SiKeSanChuan from '../components/SiKeSanChuan';
 import DaLiuRenResultPanel from '../components/DaLiuRenResultPanel';
+import AISettingsButton from '../components/AISettingsButton';
 import { calculateDaLiuRen, DaLiuRenResult, DI_ZHI } from '../utils/daLiuRen';
 
 const shichenOptions = ['当前', '子时', '丑时', '寅时', '卯时', '辰时', '巳时', '午时', '未时', '申时', '酉时', '戌时', '亥时'];
@@ -244,7 +245,7 @@ export default function DaLiuRenPage() {
           {/* 底部版权信息 */}
           <div className="text-gray-500 text-sm space-y-2 pt-4 border-t border-gray-200">
             <p>本程序仅供学习研究使用，请勿用于商业用途</p>
-            <p>© 2024 大六壬 - 传承传统占卜文化</p>
+            <p>© {new Date().getFullYear()} 六壬占卜 - 传承传统占卜文化</p>
           </div>
         </footer>
       </div>

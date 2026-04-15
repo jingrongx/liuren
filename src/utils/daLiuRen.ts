@@ -288,6 +288,47 @@ export function getShiZhi(date: Date): string {
   return lunar.getTimeZhi();
 }
 
+// 获取四柱（年柱、月柱、日柱、时柱）
+export interface SiZhu {
+  year: string;   // 年柱
+  month: string;  // 月柱
+  day: string;    // 日柱
+  hour: string;   // 时柱
+}
+
+export function getSiZhu(date: Date, shichen?: string): SiZhu {
+  const solar = Solar.fromDate(date);
+  const lunar = Lunar.fromSolar(solar);
+
+  // 年柱
+  const yearGanZhi = lunar.getYearInGanZhi();
+
+  // 月柱
+  const monthGanZhi = lunar.getMonthInGanZhi();
+
+  // 日柱
+  const dayGanZhi = lunar.getDayInGanZhi();
+
+  // 时柱
+  let hourGanZhi: string;
+  if (shichen) {
+    const shiIdx = DI_ZHI.indexOf(shichen);
+    const dayGanTianGanIdx = TIAN_GAN.indexOf(dayGanZhi[0]);
+    // 时干计算公式：(日干序 * 2 + 时支序) % 10
+    const hourGanIdx = (dayGanTianGanIdx * 2 + shiIdx) % 10;
+    hourGanZhi = TIAN_GAN[hourGanIdx] + shichen;
+  } else {
+    hourGanZhi = lunar.getTimeInGanZhi();
+  }
+
+  return {
+    year: yearGanZhi,
+    month: monthGanZhi,
+    day: dayGanZhi,
+    hour: hourGanZhi
+  };
+}
+
 // ============================================================
 // 四课计算
 // ============================================================
@@ -1135,6 +1176,7 @@ export interface DaLiuRenResult {
   tianJiangArr: string[];
   guiDirection: '顺' | '逆';
   keTi: KeTi;
+  siZhu: SiZhu;
 }
 
 export function calculateDaLiuRen(date: Date, shichen?: string): DaLiuRenResult {
@@ -1173,6 +1215,9 @@ export function calculateDaLiuRen(date: Date, shichen?: string): DaLiuRenResult 
 
   const lunarDateStr = `${lunar.getYearInChinese()}年 ${lunar.getMonthInChinese()}月 ${lunar.getDayInChinese()}日`;
 
+  // 四柱
+  const siZhu = getSiZhu(date, shiZhi);
+
   return {
     solarDate: solar.toYmd(),
     lunarDate: lunarDateStr,
@@ -1189,6 +1234,7 @@ export function calculateDaLiuRen(date: Date, shichen?: string): DaLiuRenResult 
     tianJiangArr,
     guiDirection,
     keTi,
+    siZhu,
   };
 }
 

@@ -11,6 +11,9 @@ import {
   getLeiShen,
   getSanChuanDetail,
 } from '../utils/daLiuRen';
+import AIAnalysisButton from './AIAnalysisButton';
+import AISettingsButton from './AISettingsButton';
+import { generateDaLiuRenPrompt } from '../utils/aiPrompt';
 
 interface DaLiuRenResultPanelProps {
   result: DaLiuRenResult;
@@ -60,6 +63,28 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
           <span className="text-gray-600">农历日期</span>
           <span className="font-medium text-gray-800">{result.lunarDate}</span>
         </div>
+
+        {/* 四柱显示 */}
+        <div className="py-2 border-b border-gray-100">
+          <div className="text-gray-600 mb-2">四柱</div>
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { label: '年柱', value: result.siZhu.year },
+              { label: '月柱', value: result.siZhu.month },
+              { label: '日柱', value: result.siZhu.day },
+              { label: '时柱', value: result.siZhu.hour },
+            ].map((zhu) => (
+              <div key={zhu.label} className="text-center bg-indigo-50 rounded-lg p-2">
+                <div className="text-xs text-gray-500 mb-1">{zhu.label}</div>
+                <div className="font-bold text-gray-800 text-sm">{zhu.value}</div>
+                <div className="text-xs text-gray-400 mt-0.5">
+                  {GAN_WU_XING[zhu.value[0]]}·{ZHI_WU_XING[zhu.value[1]]}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="flex justify-between items-center py-2 border-b border-gray-100">
           <span className="text-gray-600">日干支</span>
           <span className="font-medium text-gray-800">
@@ -128,12 +153,12 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
       {/* 类神取法 */}
       <div className="bg-gray-50 rounded-lg p-4 mb-4">
         <h4 className="font-bold text-gray-800 mb-3">类神取法</h4>
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {leiShenList.filter(ls => ls.zhiList.length > 0).map((ls) => (
-            <div key={ls.name} className="flex items-center gap-2 text-sm min-w-full">
+            <div key={ls.name} className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 text-sm">
               <div className="font-medium text-gray-700 w-16 shrink-0">{ls.name}</div>
-              <div className="text-gray-400 shrink-0">→</div>
-              <div className="flex gap-1 flex-1 overflow-x-auto whitespace-nowrap py-1">
+              <div className="text-gray-400 shrink-0 hidden sm:block">→</div>
+              <div className="flex gap-1 flex-wrap sm:flex-nowrap overflow-x-auto whitespace-nowrap py-1">
                 {ls.zhiList.map(z => {
                   const isChu = sanChuan.chu === z;
                   const isZhong = sanChuan.zhong === z;
@@ -145,7 +170,7 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
                   );
                 })}
               </div>
-              <div className="text-xs text-gray-400 ml-2 shrink-0 max-w-[120px]">{ls.desc.slice(0, 8)}</div>
+              <div className="text-xs text-gray-400 ml-0 sm:ml-2 shrink-0">{ls.desc}</div>
             </div>
           ))}
         </div>
@@ -233,7 +258,7 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
       </div>
 
       {/* 天将排列 */}
-      <div className="bg-gray-50 rounded-lg p-4">
+      <div className="bg-gray-50 rounded-lg p-4 mb-4">
         <h4 className="font-bold text-gray-800 mb-3">天将排列</h4>
         <div className="grid grid-cols-6 gap-2 text-xs">
           {result.tianJiangArr.map((jiang, idx) => {
@@ -266,6 +291,15 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
             );
           })}
         </div>
+      </div>
+
+      {/* AI 分析功能 */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-bold text-gray-800">AI 分析</h3>
+          <AISettingsButton />
+        </div>
+        <AIAnalysisButton prompt={generateDaLiuRenPrompt(result)} />
       </div>
     </div>
   );

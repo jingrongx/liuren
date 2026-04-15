@@ -1,5 +1,8 @@
 import React from 'react';
 import { DivinationResult } from '../utils/divination';
+import AIAnalysisButton from './AIAnalysisButton';
+import AISettingsButton from './AISettingsButton';
+import { generateXiaoLiuRenPrompt } from '../utils/aiPrompt';
 
 interface GuaResultProps {
   result: DivinationResult;
@@ -42,7 +45,7 @@ const GuaResult: React.FC<GuaResultProps> = ({ result }) => {
         </div>
       </div>
       
-      <div className="bg-gray-50 rounded-lg p-4">
+      <div className="bg-gray-50 rounded-lg p-4 mb-4">
         <h4 className="font-bold text-gray-800 mb-3">推算过程</h4>
         <div className="space-y-2 text-sm text-gray-700">
           <div className="flex items-start gap-2">
@@ -58,6 +61,14 @@ const GuaResult: React.FC<GuaResultProps> = ({ result }) => {
             <span>从 [{result.steps.step2.gua.result}] 开始，得到：[{result.steps.step3.gua.result}]，{result.steps.step3.gua.desc}</span>
           </div>
         </div>
+      </div>
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-bold text-gray-800">AI 分析</h3>
+          <AISettingsButton /> 
+        </div>
+        <AIAnalysisButton prompt={generateXiaoLiuRenPrompt(result)} />
       </div>
     </div>
   );

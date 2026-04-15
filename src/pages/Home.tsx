@@ -4,6 +4,7 @@ import GuaResult from '../components/GuaResult';
 import GuaTable from '../components/GuaTable';
 import ShichenTable from '../components/ShichenTable';
 import FutureGuaTable from '../components/FutureGuaTable';
+import AISettingsButton from '../components/AISettingsButton';
 import { calculateDivination, shichenNames, DivinationResult } from '../utils/divination';
 
 export default function Home() {
@@ -192,7 +193,7 @@ export default function Home() {
           {/* 底部版权信息 */}
           <div className="text-gray-500 text-sm space-y-2 pt-4 border-t border-gray-200">
             <p>本程序仅供学习研究使用，请勿用于商业用途</p>
-            <p>© 2024 小六壬 - 传承传统占卜文化</p>
+            <p>© {new Date().getFullYear()} 六壬占卜 - 传承传统占卜文化</p>
           </div>
         </footer>
       </div>
