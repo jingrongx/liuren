@@ -6,6 +6,7 @@ import ShichenTable from '../components/ShichenTable';
 import FutureGuaTable from '../components/FutureGuaTable';
 import AISettingsButton from '../components/AISettingsButton';
 import { calculateDivination, shichenNames, DivinationResult } from '../utils/divination';
+import { getLatestApkDownloadUrl } from '../lib/downloadUtils';
 
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -70,7 +71,7 @@ export default function Home() {
               国内下载 APK
             </a>
             <a
-              href="https://github.com/jingrongx/liuren/releases/download/1.1.0/app-release.apk"
+              href={getLatestApkDownloadUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-900 text-white rounded-lg hover:from-gray-800 hover:to-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
