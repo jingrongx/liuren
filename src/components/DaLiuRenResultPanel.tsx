@@ -279,8 +279,9 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
             const isSC = isChu || isZhong || isMo;
             let scLabel = '';
             if (isChu) scLabel = '初';
-            if (isZhong) scLabel = '中';
-            if (isMo) scLabel = '末';
+            else if (isZhong && isMo) scLabel = '中末';
+            else if (isZhong) scLabel = '中';
+            else if (isMo) scLabel = '末';
             return (
               <div key={idx} className={`p-2 rounded border text-center relative ${isSC ? 'ring-2 ring-red-400 ring-offset-1' : ''} ${
                 isGood ? 'bg-red-50 border-red-200' : 'bg-gray-100 border-gray-300'
