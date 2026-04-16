@@ -13,12 +13,12 @@ jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # 允许创建和修改内容，包括 Releases
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false  # 不持久化凭证，使用 GITHUB_TOKEN
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -42,26 +42,21 @@ jobs:
 
       - name: Update version
         run: |
-          # 获取当前版本号
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           echo "Current version: $CURRENT_VERSION"
           
-          # 递增补丁版本号 (例如: 1.2.0 -> 1.2.1)
           IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
           NEW_VERSION="$major.$minor.$((patch + 1))"
           echo "New version: $NEW_VERSION"
           
-          # 更新 package.json
           npm version --no-git-tag-version $NEW_VERSION
           
-          # 更新 Android 版本号
           cd android
           NEW_VERSION_CODE=$(grep "versionCode" app/build.gradle | grep -o '[0-9]\+')
           NEW_VERSION_CODE=$((NEW_VERSION_CODE + 1))
           sed -i "s/versionCode [0-9]\+/versionCode $NEW_VERSION_CODE/" app/build.gradle
           sed -i "s/versionName \".*\"/versionName \"$NEW_VERSION\"/" app/build.gradle
           
-          # 提交更改
           cd ..
           git add package.json android/app/build.gradle
           git commit -m "chore: 自动更新版本到 $NEW_VERSION"
@@ -73,17 +68,9 @@ jobs:
       - name: Sync to Android
         run: npx cap sync android
 
-      - name: Generate keystore
+      - name: Decode keystore
         run: |
-          keytool -genkeypair -v \
-            -keystore android/app/release.keystore \
-            -alias liuren \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -storepass liuren123 \
-            -keypass liuren123 \
-            -dname "CN=Liuren, OU=Dev, O=Liuren, L=Beijing, ST=Beijing, C=CN"
+          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
 
       - name: Build APK
         run: |
@@ -103,24 +90,18 @@ jobs:
       - name: Generate release notes
         id: generate-notes
         run: |
-          # 获取上一个 tag
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           
-          # 生成更新内容，基于 git 提交历史
           if [ -n "$LAST_TAG" ]; then
-            # 从上一个 tag 到当前的所有提交
             RELEASE_NOTES=$(git log $LAST_TAG..HEAD --pretty=format:"- %s" --grep="^(feat\|fix\|refactor\|docs\|perf)")
           else
-            # 如果没有 tag，获取所有提交
             RELEASE_NOTES=$(git log --pretty=format:"- %s" --grep="^(feat\|fix\|refactor\|docs\|perf)")
           fi
           
-          # 如果没有符合条件的提交，使用默认内容
           if [ -z "$RELEASE_NOTES" ]; then
             RELEASE_NOTES="- 自动更新版本"
           fi
           
-          # 保存到环境变量
           echo "release_notes<<EOF" >> $GITHUB_OUTPUT
           echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT

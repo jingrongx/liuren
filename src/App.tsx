@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import Home from "@/pages/Home";
+import UpdateChecker from "@/components/UpdateChecker";
 
 const DaLiuRenPage = lazy(() => import("@/pages/DaLiuRenPage"));
 
@@ -44,6 +45,7 @@ function NavBar() {
 export default function App() {
   return (
     <Router>
+      <UpdateChecker />
       <NavBar />
       <Routes>
         <Route path="/" element={<Home />} />

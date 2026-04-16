@@ -164,7 +164,7 @@ export default function Home() {
                 访问官网
               </a>
               <a
-                href="https://ghproxy.net/https://github.com/jingrongx/jingfangjia-ai-releases/releases/download/v1.7.51/JingFangJia-AI-v1.7.51.apk"
+                href="https://ghproxy.net/https://github.com/jingrongx/liuren/releases/latest/download/app-release.apk"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md"
@@ -177,7 +177,7 @@ export default function Home() {
                 国内下载 APK
               </a>
               <a
-                href="https://github.com/jingrongx/jingfangjia-ai-releases/releases/download/v1.7.51/JingFangJia-AI-v1.7.51.apk"
+                href="https://github.com/jingrongx/liuren/releases/latest/download/app-release.apk"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors shadow-md"
