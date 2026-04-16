@@ -128,23 +128,29 @@ const SiKeSanChuan: React.FC<SiKeSanChuanProps> = ({
 
           {/* 中传 */}
           <div className="text-center">
-            <div className="text-xs text-gray-500 mb-1">中传</div>
+            <div className="text-xs text-gray-500 mb-1">
+              {sanChuan.zhong === sanChuan.mo ? '中末' : '中传'}
+            </div>
             <div className={`text-xl font-bold px-3 py-2 rounded border ${getWuXingBadge(scWuXing.zhong)}`}>
               {sanChuan.zhong}
             </div>
             <div className="text-xs text-purple-600 mt-1">{scTianJiang.zhong}</div>
           </div>
 
-          <div className="text-sm text-gray-400">→</div>
+          {sanChuan.zhong !== sanChuan.mo && (
+            <>
+              <div className="text-sm text-gray-400">→</div>
 
-          {/* 末传 */}
-          <div className="text-center">
-            <div className="text-xs text-gray-500 mb-1">末传</div>
-            <div className={`text-xl font-bold px-3 py-2 rounded border ${getWuXingBadge(scWuXing.mo)}`}>
-              {sanChuan.mo}
-            </div>
-            <div className="text-xs text-purple-600 mt-1">{scTianJiang.mo}</div>
-          </div>
+              {/* 末传 */}
+              <div className="text-center">
+                <div className="text-xs text-gray-500 mb-1">末传</div>
+                <div className={`text-xl font-bold px-3 py-2 rounded border ${getWuXingBadge(scWuXing.mo)}`}>
+                  {sanChuan.mo}
+                </div>
+                <div className="text-xs text-purple-600 mt-1">{scTianJiang.mo}</div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* 取传说明 */}
