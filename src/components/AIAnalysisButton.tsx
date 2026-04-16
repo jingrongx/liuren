@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Sparkles, X, Copy, Check, Loader2, User, Calendar, Venus, Mars, RefreshCw } from 'lucide-react';
-import { loadConfig, saveConfig, DEFAULT_CONFIG } from './AISettingsButton';
+import { loadConfig, saveConfig, DEFAULT_CONFIG, CONFIG_UPDATED_EVENT } from './AISettingsButton';
 
 interface AIAnalysisButtonProps {
   prompt: string;
@@ -8,7 +8,7 @@ interface AIAnalysisButtonProps {
 
 const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({ prompt }) => {
   const [showModal, setShowModal] = useState(false);
-  const [config] = useState(loadConfig());
+  const [config, setConfig] = useState(loadConfig());
   const [aiResponse, setAiResponse] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
@@ -22,6 +22,12 @@ const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({ prompt }) => {
     birthDate: '',
   });
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    const handler = () => setConfig(loadConfig());
+    window.addEventListener(CONFIG_UPDATED_EVENT, handler);
+    return () => window.removeEventListener(CONFIG_UPDATED_EVENT, handler);
+  }, []);
 
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(prompt).then(() => {

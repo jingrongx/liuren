@@ -174,7 +174,6 @@ const TianDiPan: React.FC<TianDiPanProps> = ({ diPan, tianPan, tianJiangArr, san
 
         {/* 中心 */}
         <circle cx={CX} cy={CY} r={R_CENTER} fill="white" stroke="#9ca3af" strokeWidth="1" />
-        <text x={CX} y={CY} textAnchor="middle" dominantBaseline="central" fontSize="13" fill="#92400e" fontWeight="bold">四课</text>
       </svg>
 
       {/* 图例 — 简化，只保留三传 */}

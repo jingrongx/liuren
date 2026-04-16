@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Settings, X, AlertTriangle, Eye, EyeOff, Loader2 } from 'lucide-react';
 
 interface AIConfig {
@@ -15,6 +15,8 @@ export const DEFAULT_CONFIG: AIConfig = {
 
 export const STORAGE_KEY = 'liuren_ai_config';
 
+export const CONFIG_UPDATED_EVENT = 'liuren_ai_config_updated';
+
 export function loadConfig(): AIConfig {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -28,6 +30,7 @@ export function loadConfig(): AIConfig {
 export function saveConfig(config: AIConfig) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+    window.dispatchEvent(new CustomEvent(CONFIG_UPDATED_EVENT));
   } catch {}
 }
 
@@ -39,8 +42,15 @@ const AISettingsButton: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState('');
 
+  useEffect(() => {
+    const handler = () => setConfig(loadConfig());
+    window.addEventListener(CONFIG_UPDATED_EVENT, handler);
+    return () => window.removeEventListener(CONFIG_UPDATED_EVENT, handler);
+  }, []);
+
   const handleSaveConfig = () => {
     saveConfig(config);
+    setConfig(loadConfig());
     setSuccess('设置已保存');
     setTimeout(() => setSuccess(''), 2000);
   };
@@ -92,8 +102,19 @@ const AISettingsButton: React.FC = () => {
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-4 border-b">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative">
+            {success && (
+              <div className="absolute top-0 left-0 right-0 z-10 bg-green-500 text-white text-center py-2.5 text-sm font-medium animate-slide-down">
+                ✓ {success}
+              </div>
+            )}
+            {error && (
+              <div className="absolute top-0 left-0 right-0 z-10 bg-red-500 text-white text-center py-2.5 text-sm font-medium animate-slide-down">
+                ✕ {error}
+              </div>
+            )}
+
+            <div className={`flex items-center justify-between p-4 border-b ${(success || error) ? 'pt-10' : ''}`}>
               <h2 className="text-xl font-bold">AI解读设置</h2>
               <button
                 onClick={() => setShowModal(false)}
@@ -179,6 +200,7 @@ const AISettingsButton: React.FC = () => {
                   onClick={() => {
                     setConfig({ ...DEFAULT_CONFIG });
                     saveConfig(DEFAULT_CONFIG);
+                    setConfig(loadConfig());
                     setSuccess('已恢复默认设置');
                     setTimeout(() => setSuccess(''), 2000);
                   }}
@@ -193,17 +215,6 @@ const AISettingsButton: React.FC = () => {
                   保存
                 </button>
               </div>
-
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
-              )}
-              {success && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                  <p className="text-sm text-green-700">{success}</p>
-                </div>
-              )}
             </div>
           </div>
         </div>
