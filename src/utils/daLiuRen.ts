@@ -1121,10 +1121,10 @@ function baZhuan(siKe: Ke[], dayGan: string, dayZhi: string, tianPan: string[]):
   let chu: string;
   if (ganYy === '阳') {
     const shangIdx = zhiIndex(siKe[0].shang);
-    chu = DI_ZHI[(shangIdx + 3) % 12];
+    chu = DI_ZHI[(shangIdx + 2) % 12];
   } else {
     const shangIdx = zhiIndex(siKe[3].shang);
-    chu = DI_ZHI[(shangIdx - 3 + 12) % 12];
+    chu = DI_ZHI[(shangIdx - 2 + 12) % 12];
   }
 
   const zhong = ganShangShen;
