@@ -278,8 +278,11 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
             const isMo = zhi === sanChuan.mo;
             const isSC = isChu || isZhong || isMo;
             let scLabel = '';
-            if (isChu) scLabel = '初';
+            if (isChu && isZhong && isMo) scLabel = '初中末';
+            else if (isChu && isZhong) scLabel = '初中';
+            else if (isChu && isMo) scLabel = '初末';
             else if (isZhong && isMo) scLabel = '中末';
+            else if (isChu) scLabel = '初';
             else if (isZhong) scLabel = '中';
             else if (isMo) scLabel = '末';
             return (
@@ -287,7 +290,7 @@ const DaLiuRenResultPanel: React.FC<DaLiuRenResultPanelProps> = ({ result }) => 
                 isGood ? 'bg-red-50 border-red-200' : 'bg-gray-100 border-gray-300'
               }`}>
                 {scLabel && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[7px] font-bold">
+                  <span className={`absolute -top-1 -right-1 bg-red-500 text-white rounded-full flex items-center justify-center text-[7px] font-bold leading-none ${scLabel.length >= 3 ? 'w-auto px-1 h-4' : scLabel.length === 2 ? 'w-4 h-4' : 'w-3.5 h-3.5'}`}>
                     {scLabel}
                   </span>
                 )}

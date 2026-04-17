@@ -32,10 +32,17 @@ function isSanChuanCheck(zhi: string, sanChuan: { chu: string; zhong: string; mo
 }
 
 function getSanChuanLabel(zhi: string, sanChuan: { chu: string; zhong: string; mo: string }): string {
-  if (zhi === sanChuan.chu) return '初';
-  if (zhi === sanChuan.zhong && zhi === sanChuan.mo) return '中末';
-  if (zhi === sanChuan.zhong) return '中';
-  if (zhi === sanChuan.mo) return '末';
+  const isChu = zhi === sanChuan.chu;
+  const isZhong = zhi === sanChuan.zhong;
+  const isMo = zhi === sanChuan.mo;
+
+  if (isChu && isZhong && isMo) return '初中末';
+  if (isChu && isZhong) return '初中';
+  if (isChu && isMo) return '初末';
+  if (isZhong && isMo) return '中末';
+  if (isChu) return '初';
+  if (isZhong) return '中';
+  if (isMo) return '末';
   return '';
 }
 
