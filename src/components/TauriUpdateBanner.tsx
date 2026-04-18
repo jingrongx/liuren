@@ -2,7 +2,15 @@ import React from 'react';
 import { Download, X, RefreshCw } from 'lucide-react';
 import { useTauriUpdater } from '../hooks/useTauriUpdater';
 
+const isTauri = () => '__TAURI__' in window || '__TAURI_INTERNALS__' in window;
+
 const TauriUpdateBanner: React.FC = () => {
+  if (!isTauri()) return null;
+
+  return <TauriUpdateBannerInner />;
+};
+
+const TauriUpdateBannerInner: React.FC = () => {
   const {
     updateAvailable,
     updateInfo,

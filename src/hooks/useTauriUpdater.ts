@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { check } from '@tauri-apps/plugin-updater';
 
 interface UpdateInfo {
   version: string;
   date: string;
   body: string;
 }
+
+const isTauri = () => '__TAURI__' in window || '__TAURI_INTERNALS__' in window;
 
 export function useTauriUpdater() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
@@ -15,7 +16,10 @@ export function useTauriUpdater() {
   const [error, setError] = useState<string | null>(null);
 
   const checkForUpdate = async () => {
+    if (!isTauri()) return;
+
     try {
+      const { check } = await import('@tauri-apps/plugin-updater');
       const update = await check();
       if (update) {
         setUpdateInfo({
@@ -32,15 +36,15 @@ export function useTauriUpdater() {
   };
 
   const downloadAndInstall = async () => {
-    if (!updateInfo) return;
+    if (!updateInfo || !isTauri()) return;
 
     try {
       setDownloading(true);
       setProgress(0);
-      
+
+      const { check } = await import('@tauri-apps/plugin-updater');
       const update = await check();
       if (update) {
-        // 模拟进度
         const progressInterval = setInterval(() => {
           setProgress(prev => {
             if (prev >= 90) {
@@ -52,13 +56,12 @@ export function useTauriUpdater() {
         }, 200);
 
         await update.downloadAndInstall(() => {});
-        
+
         clearInterval(progressInterval);
         setProgress(100);
-        
+
         alert('更新下载完成，应用将重启以完成安装');
-        
-        // 使用 Tauri 的 relaunch API
+
         if ('__TAURI__' in window) {
           await (window as any).__TAURI__.process.relaunch();
         } else {
@@ -73,11 +76,12 @@ export function useTauriUpdater() {
   };
 
   useEffect(() => {
+    if (!isTauri()) return;
+
     checkForUpdate();
-    
-    // 每4小时检查一次更新
+
     const interval = setInterval(checkForUpdate, 4 * 60 * 60 * 1000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
