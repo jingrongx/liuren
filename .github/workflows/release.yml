@@ -59,7 +59,7 @@ jobs:
           
           cd ..
           git add package.json android/app/build.gradle
-          git commit -m "chore: 自动更新版本到 $NEW_VERSION"
+          git commit -m "chore: auto bump version to $NEW_VERSION"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
 
       - name: Build web
@@ -76,6 +76,9 @@ jobs:
         run: |
           cd android
           ./gradlew assembleRelease
+
+      - name: List APK files
+        run: find android/app/build/outputs/apk/release -name "*.apk" -type f
 
       - name: Get version
         id: get-version
@@ -99,7 +102,7 @@ jobs:
           fi
           
           if [ -z "$RELEASE_NOTES" ]; then
-            RELEASE_NOTES="- 自动更新版本"
+            RELEASE_NOTES="- auto version bump"
           fi
           
           echo "release_notes<<EOF" >> $GITHUB_OUTPUT
@@ -109,42 +112,24 @@ jobs:
       - name: Create GitHub Release (APK only)
         uses: softprops/action-gh-release@v1
         with:
-          files: android/app/build/outputs/apk/release/六壬占卜_*.apk
+          files: android/app/build/outputs/apk/release/liuren_*.apk
           tag_name: v${{ steps.get-version.outputs.version }}
-          name: 六壬占卜 v${{ steps.get-version.outputs.version }}
+          name: v${{ steps.get-version.outputs.version }}
           body: |
-            # 🎯 六壬占卜 v${{ steps.get-version.outputs.version }}
-            
-            ## ✨ 更新内容
+            ## What's Changed
             ${{ steps.generate-notes.outputs.release_notes }}
             
             ---
             
-            ## 📥 下载链接
+            ## Downloads
             
-            ### 📱 Android 版本
-            - [🌐 GitHub 下载 APK](https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/六壬占卜_v${{ steps.get-version.outputs.version }}.apk)
-            - [⚡ 国内加速下载 APK](https://ghproxy.net/https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/六壬占卜_v${{ steps.get-version.outputs.version }}.apk)
+            ### Android
+            - [GitHub APK](https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/liuren_v${{ steps.get-version.outputs.version }}.apk)
+            - [Mirror APK](https://ghproxy.net/https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/liuren_v${{ steps.get-version.outputs.version }}.apk)
             
-            ### 💻 Windows 桌面版（推荐！）
+            ### Windows Desktop (building...)
             
-            > ⏳ **桌面版正在构建中，请稍后刷新此页面...**
-            >
-            > 💡 **桌面版优势**：
-            > - 📦 体积小巧：约 15MB（vs Electron 的 150MB）
-            > - 🚀 启动迅速：使用系统 WebView2
-            > - 🔒 安全可靠：支持自动更新
-            > - 💻 零依赖：双击安装即可使用
-            > 
-            > **安装说明**：
-            > 1. 下载 `六壬占卜_x64-setup.exe`
-            > 2. 双击运行安装程序
-            > 3. 点击"下一步"直到完成
-            > 4. 桌面会出现快捷方式 → 双击启动
-            
-            ---
-            
-            **💬 反馈问题**: [GitHub Issues](https://github.com/jingrongx/liuren/issues)
+            > Please wait for the desktop build to complete, then refresh this page.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -169,8 +154,6 @@ jobs:
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
@@ -186,59 +169,46 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
 
+      - name: List EXE files
+        shell: pwsh
+        run: Get-ChildItem -Path "src-tauri\target\release\bundle\nsis" -Filter "*.exe" -Recurse | Select-Object FullName
+
       - name: Get version
         id: get-version
         shell: pwsh
         run: |
           $VERSION = node -p "require('./package.json').version"
-          Write-Output "version=$VERSION"
           Add-Content -Path $env:GITHUB_OUTPUT -Value "version=$VERSION"
 
       - name: Upload EXE to GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: src-tauri/target/release/bundle/nsis/*.exe
+          files: src-tauri/target/release/bundle/nsis/liuren_*_x64-setup.exe
           tag_name: v${{ steps.get-version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update release notes with download links
+      - name: Update release notes
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.get-version.outputs.version }}
           body: |
-            # 🎯 六壬占卜 v${{ steps.get-version.outputs.version }} ✅ 完整版
+            ## What's Changed
+            ${{ needs.release.outputs.release_notes }}
             
             ---
             
-            ## ✨ 更新内容
-            _（见上一个版本的更新日志）_
+            ## Downloads
             
-            ## 📥 下载链接
+            ### Android
+            - [GitHub APK](https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/liuren_v${{ steps.get-version.outputs.version }}.apk)
+            - [Mirror APK](https://ghproxy.net/https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/liuren_v${{ steps.get-version.outputs.version }}.apk)
             
-            ### 📱 Android 版本
-            - [🌐 GitHub 下载 APK](https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/六壬占卜_v${{ steps.get-version.outputs.version }}.apk)
-            - [⚡ 国内加速下载 APK](https://ghproxy.net/https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/六壬占卜_v${{ steps.get-version.outputs.version }}.apk)
+            ### Windows Desktop
+            - [GitHub EXE](https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/liuren_${{ steps.get-version.outputs.version }}_x64-setup.exe)
+            - [Mirror EXE](https://ghproxy.net/https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/liuren_${{ steps.get-version.outputs.version }}_x64-setup.exe)
             
-            ### 💻 Windows 桌面版 ✅ 已构建完成
-            - [🌐 GitHub 下载 EXE](https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/六壬占卜_${{ steps.get-version.outputs.version }}_x64-setup.exe)
-            - [⚡ 国内加速下载 EXE](https://ghproxy.net/https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/六壬占卜_${{ steps.get-version.outputs.version }}_x64-setup.exe)
-            
-            > 💡 **桌面版特点**：
-            > - 📦 体积小巧：约 15MB（vs Electron 的 150MB）
-            > - 🚀 启动迅速：使用系统 WebView2
-            > - 🔒 安全可靠：支持自动更新
-            > - 💻 零依赖：双击安装即可使用
-            > 
-            > **安装说明**：
-            > 1. 下载 `六壬占卜_x.x.x_x64-setup.exe`
-            > 2. 双击运行安装程序
-            > 3. 点击"下一步"直到完成
-            > 4. 桌面会出现快捷方式 → 双击启动
-            
-            ---
-            
-            **💬 反馈问题**: [GitHub Issues](https://github.com/jingrongx/liuren/issues)  
-            **🌐 网页版**: [在线使用](https://liuren-delta.vercel.app/)
+            > Desktop app: ~15MB, auto-update, no dependencies needed.
+            > Just download, install, and run!
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
