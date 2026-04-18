@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import Home from "@/pages/Home";
 import UpdateChecker from "@/components/UpdateChecker";
 import TauriUpdateBanner from "@/components/TauriUpdateBanner";
@@ -44,6 +44,14 @@ function NavBar() {
 }
 
 export default function App() {
+  useEffect(() => {
+    const splash = document.getElementById('splash');
+    if (splash) {
+      splash.classList.add('hide');
+      setTimeout(() => splash.remove(), 300);
+    }
+  }, []);
+
   return (
     <Router>
       <TauriUpdateBanner />
