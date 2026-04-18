@@ -6,7 +6,7 @@ import SiKeSanChuan from '../components/SiKeSanChuan';
 import DaLiuRenResultPanel from '../components/DaLiuRenResultPanel';
 import AISettingsButton from '../components/AISettingsButton';
 import { calculateDaLiuRen, DaLiuRenResult, DI_ZHI } from '../utils/daLiuRen';
-import { getLatestApkDownloadUrl, getGhproxyApkDownloadUrl } from '../lib/downloadUtils';
+import { getLatestApkDownloadUrl, getGhproxyApkDownloadUrl, getGhproxyExeDownloadUrl, getLatestExeDownloadUrl } from '../lib/downloadUtils';
 
 const shichenOptions = ['当前', '子时', '丑时', '寅时', '卯时', '辰时', '巳时', '午时', '未时', '申时', '酉时', '戌时', '亥时'];
 
@@ -66,7 +66,7 @@ export default function DaLiuRenPage() {
                 Android下载
               </a>
               <a
-                href="https://ghproxy.net/https://github.com/jingrongx/liuren/releases/latest/download/liuren_x64-setup.exe"
+                href={getGhproxyExeDownloadUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm font-medium"
@@ -98,15 +98,6 @@ export default function DaLiuRenPage() {
                 className="hover:text-gray-700 underline decoration-dotted"
               >
                 GitHub EXE
-              </a>
-              <span className="text-gray-300">|</span>
-              <a
-                href="https://liuren-delta.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-gray-700 underline decoration-dotted"
-              >
-                网页版
               </a>
             </div>
             

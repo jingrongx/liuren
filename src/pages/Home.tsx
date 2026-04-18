@@ -6,7 +6,7 @@ import ShichenTable from '../components/ShichenTable';
 import FutureGuaTable from '../components/FutureGuaTable';
 import AISettingsButton from '../components/AISettingsButton';
 import { calculateDivination, shichenNames, DivinationResult } from '../utils/divination';
-import { getApkDownloadUrl, getGhproxyApkDownloadUrl, getLatestApkDownloadUrl } from '../lib/downloadUtils';
+import { getApkDownloadUrl, getGhproxyApkDownloadUrl, getLatestApkDownloadUrl, getGhproxyExeDownloadUrl, getLatestExeDownloadUrl } from '../lib/downloadUtils';
 
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -43,44 +43,68 @@ export default function Home() {
             小六壬
           </h1>
           <p className="text-gray-600 text-lg">传统占卜文化，在线吉凶预测</p>
-            <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href="https://liuren-delta.vercel.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="2" y1="12" x2="22" y2="12"/>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-              </svg>
-              官网
-            </a>
-            <a
-              href={getGhproxyApkDownloadUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg hover:from-green-600 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              国内下载 APK
-            </a>
-            <a
-              href={getApkDownloadUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-900 text-white rounded-lg hover:from-gray-800 hover:to-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
-              </svg>
-              GitHub下载
-            </a>
+          
+          {/* 下载按钮 - 响应式优化 */}
+          <div className="mt-6 space-y-3">
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <a
+                href={getGhproxyApkDownloadUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg hover:from-green-600 hover:to-teal-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm font-medium"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Android下载
+              </a>
+              <a
+                href={getGhproxyExeDownloadUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm font-medium"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                  <line x1="8" y1="21" x2="16" y2="21"/>
+                  <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+                Windows下载
+              </a>
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 justify-center text-xs text-gray-500">
+              <a
+                href={getLatestApkDownloadUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gray-700 underline decoration-dotted"
+              >
+                GitHub APK
+              </a>
+              <span className="text-gray-300">|</span>
+              <a
+                href={getLatestExeDownloadUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gray-700 underline decoration-dotted"
+              >
+                GitHub EXE
+              </a>
+              <span className="text-gray-300">|</span>
+              <a
+                href="https://liuren-delta.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gray-700 underline decoration-dotted"
+              >
+                网页版
+              </a>
+            </div>
+            <p className="text-xs text-gray-400">
+              💡 桌面版约15MB，支持自动更新，推荐电脑用户使用
+            </p>
           </div>
         </header>
 
