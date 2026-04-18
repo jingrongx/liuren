@@ -51,6 +51,13 @@ dependencies {
 
 apply from: 'capacitor.build.gradle'
 
+android.applicationVariants.all { variant ->
+    variant.outputs.all { output ->
+        def versionName = variant.versionName
+        outputFileName = "六壬占卜_v${versionName}.apk"
+    }
+}
+
 try {
     def servicesJSON = file('google-services.json')
     if (servicesJSON.text) {

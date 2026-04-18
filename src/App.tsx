@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react
 import { lazy, Suspense } from "react";
 import Home from "@/pages/Home";
 import UpdateChecker from "@/components/UpdateChecker";
+import TauriUpdateBanner from "@/components/TauriUpdateBanner";
 
 const DaLiuRenPage = lazy(() => import("@/pages/DaLiuRenPage"));
 
@@ -45,6 +46,7 @@ function NavBar() {
 export default function App() {
   return (
     <Router>
+      <TauriUpdateBanner />
       <UpdateChecker />
       <NavBar />
       <Routes>

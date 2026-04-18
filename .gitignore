@@ -26,3 +26,11 @@ dist-ssr
 # Android keystore
 release.keystore
 release.keystore.base64
+
+# Signing keys (绝密！绝对不能提交)
+.key/
+*.key
+*.key.pub
+
+# Tauri build
+src-tauri/target

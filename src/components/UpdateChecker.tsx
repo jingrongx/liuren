@@ -17,7 +17,16 @@ const UpdateChecker: React.FC = () => {
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState(false);
 
+  // 检测是否在 Tauri 桌面环境中
+  const isTauri = '__TAURI__' in window || '__TAURI_INTERNALS__' in window;
+
   useEffect(() => {
+    if (isTauri) {
+      // Tauri 环境下使用专门的 updater hook，这里只做基本检查
+      setChecking(false);
+      return;
+    }
+
     const checkUpdate = async () => {
       try {
         const res = await fetch('https://api.github.com/repos/jingrongx/liuren/releases/latest');
@@ -26,8 +35,14 @@ const UpdateChecker: React.FC = () => {
         const remoteVersion = data.tag_name.replace(/^v/, '');
         setLatestVersion(remoteVersion);
 
+        // 根据平台提供不同的下载链接
         const apkAsset = data.assets.find(a => a.name.endsWith('.apk'));
-        if (apkAsset) {
+        const exeAsset = data.assets.find(a => a.name.endsWith('.exe'));
+        
+        if (isWindows() && exeAsset) {
+          setDownloadUrl(exeAsset.browser_download_url);
+          setGhproxyUrl(`https://ghproxy.net/${exeAsset.browser_download_url}`);
+        } else if (apkAsset) {
           setDownloadUrl(apkAsset.browser_download_url);
           setGhproxyUrl(`https://ghproxy.net/${apkAsset.browser_download_url}`);
         } else {
@@ -60,7 +75,7 @@ const UpdateChecker: React.FC = () => {
       if (cachedProxy) setGhproxyUrl(cachedProxy);
       setChecking(false);
     }
-  }, []);
+  }, [isTauri]);
 
   useEffect(() => {
     if (latestVersion) {
@@ -88,7 +103,7 @@ const UpdateChecker: React.FC = () => {
 
   return (
     <>
-      {showBanner && (
+      {showBanner && !isTauri && (
         <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2.5 flex items-center justify-between gap-3 text-sm animate-slide-down">
           <div className="flex items-center gap-2 min-w-0">
             <Download className="w-4 h-4 shrink-0" />
@@ -149,5 +164,10 @@ const UpdateChecker: React.FC = () => {
     </>
   );
 };
+
+function isWindows(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return navigator.platform.indexOf('Win') > -1;
+}
 
 export default UpdateChecker;

@@ -106,20 +106,155 @@ jobs:
           echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Create GitHub Release
+      - name: Create GitHub Release (APK only)
         uses: softprops/action-gh-release@v1
         with:
-          files: android/app/build/outputs/apk/release/app-release.apk
+          files: android/app/build/outputs/apk/release/六壬占卜_*.apk
           tag_name: v${{ steps.get-version.outputs.version }}
-          name: Release v${{ steps.get-version.outputs.version }}
+          name: 六壬占卜 v${{ steps.get-version.outputs.version }}
           body: |
-            # 版本更新
+            # 🎯 六壬占卜 v${{ steps.get-version.outputs.version }}
             
-            ## 更新内容
+            ## ✨ 更新内容
             ${{ steps.generate-notes.outputs.release_notes }}
             
-            ## 下载链接
-            - [GitHub 下载](https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/app-release.apk)
-            - [国内加速下载](https://ghproxy.net/https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/app-release.apk)
+            ---
+            
+            ## 📥 下载链接
+            
+            ### 📱 Android 版本
+            - [🌐 GitHub 下载 APK](https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/六壬占卜_v${{ steps.get-version.outputs.version }}.apk)
+            - [⚡ 国内加速下载 APK](https://ghproxy.net/https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/六壬占卜_v${{ steps.get-version.outputs.version }}.apk)
+            
+            ### 💻 Windows 桌面版（推荐！）
+            
+            > ⏳ **桌面版正在构建中，请稍后刷新此页面...**
+            >
+            > 💡 **桌面版优势**：
+            > - 📦 体积小巧：约 15MB（vs Electron 的 150MB）
+            > - 🚀 启动迅速：使用系统 WebView2
+            > - 🔒 安全可靠：支持自动更新
+            > - 💻 零依赖：双击安装即可使用
+            > 
+            > **安装说明**：
+            > 1. 下载 `六壬占卜_x64-setup.exe`
+            > 2. 双击运行安装程序
+            > 3. 点击"下一步"直到完成
+            > 4. 桌面会出现快捷方式 → 双击启动
+            
+            ---
+            
+            **💬 反馈问题**: [GitHub Issues](https://github.com/jingrongx/liuren/issues)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-desktop:
+    runs-on: windows-latest
+    needs: release
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Generate Tauri signing key (if not exists)
+        id: generate-key
+        if: ${{ secrets.TAURI_PRIVATE_KEY == '' }}
+        shell: pwsh
+        run: |
+          # 检查是否已有密钥
+          if ("$env:TAURI_PRIVATE_KEY" -eq "" -or $null -eq $env:TAURI_PRIVATE_KEY) {
+            Write-Host "::warning::未检测到 TAURI_PRIVATE_KEY，将使用无签名模式构建（自动更新功能将不可用）"
+            Write-Host "如需启用自动更新，请在 GitHub Secrets 中添加 TAURI_PRIVATE_KEY"
+            Write-Host "生成方式：在本地运行 npx tauri signer generate -w ~/.tauri/myapp.key"
+            echo "has_key=false" >> $env:GITHUB_OUTPUT
+          } else {
+            echo "has_key=true" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Build Tauri app (Windows)
+        run: npm run tauri:build
+        env:
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        continue-on-error: false
+
+      - name: Get version
+        id: get-version
+        shell: pwsh
+        run: |
+          $VERSION = node -p "require('./package.json').version"
+          Write-Output "version=$VERSION"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "version=$VERSION"
+
+      - name: Upload EXE to GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: src-tauri/target/release/bundle/nsis/*.exe
+          tag_name: v${{ steps.get-version.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update release notes with download links
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.get-version.outputs.version }}
+          body: |
+            # 🎯 六壬占卜 v${{ steps.get-version.outputs.version }} ✅ 完整版
+            
+            ---
+            
+            ## ✨ 更新内容
+            _（见上一个版本的更新日志）_
+            
+            ## 📥 下载链接
+            
+            ### 📱 Android 版本
+            - [🌐 GitHub 下载 APK](https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/六壬占卜_v${{ steps.get-version.outputs.version }}.apk)
+            - [⚡ 国内加速下载 APK](https://ghproxy.net/https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/六壬占卜_v${{ steps.get-version.outputs.version }}.apk)
+            
+            ### 💻 Windows 桌面版 ✅ 已构建完成
+            - [🌐 GitHub 下载 EXE](https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/六壬占卜_${{ steps.get-version.outputs.version }}_x64-setup.exe)
+            - [⚡ 国内加速下载 EXE](https://ghproxy.net/https://github.com/jingrongx/liuren/releases/download/v${{ steps.get-version.outputs.version }}/六壬占卜_${{ steps.get-version.outputs.version }}_x64-setup.exe)
+            
+            > 💡 **桌面版特点**：
+            > - 📦 体积小巧：约 15MB（vs Electron 的 150MB）
+            > - 🚀 启动迅速：使用系统 WebView2
+            > - 🔒 安全可靠：支持自动更新
+            > - 💻 零依赖：双击安装即可使用
+            > 
+            > **安装说明**：
+            > 1. 下载 `六壬占卜_x.x.x_x64-setup.exe`
+            > 2. 双击运行安装程序
+            > 3. 点击"下一步"直到完成
+            > 4. 桌面会出现快捷方式 → 双击启动
+            
+            ---
+            
+            **💬 反馈问题**: [GitHub Issues](https://github.com/jingrongx/liuren/issues)  
+            **🌐 网页版**: [在线使用](https://liuren-delta.vercel.app/)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
