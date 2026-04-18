@@ -19,6 +19,7 @@ export function useTauriUpdater() {
     if (!isTauri()) return;
 
     try {
+      setError(null);
       const { check } = await import('@tauri-apps/plugin-updater');
       const update = await check();
       if (update) {
@@ -30,8 +31,7 @@ export function useTauriUpdater() {
         setUpdateAvailable(true);
       }
     } catch (err) {
-      console.error('检查更新失败:', err);
-      setError(err instanceof Error ? err.message : '检查更新失败');
+      console.warn('检查更新跳过:', err);
     }
   };
 
@@ -40,6 +40,7 @@ export function useTauriUpdater() {
 
     try {
       setDownloading(true);
+      setError(null);
       setProgress(0);
 
       const { check } = await import('@tauri-apps/plugin-updater');

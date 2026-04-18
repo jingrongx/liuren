@@ -21,7 +21,7 @@ const TauriUpdateBannerInner: React.FC = () => {
     downloadAndInstall,
   } = useTauriUpdater();
 
-  if (!updateAvailable && !error) return null;
+  if (!updateAvailable) return null;
 
   return (
     <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-3 flex items-center justify-between gap-3 text-sm">
@@ -31,7 +31,7 @@ const TauriUpdateBannerInner: React.FC = () => {
           <p className="font-medium truncate">
             发现新版本 v{updateInfo?.version}
           </p>
-          {downloading && (
+          {downloading ? (
             <div className="mt-1">
               <div className="flex items-center gap-2">
                 <div className="flex-1 bg-white/20 rounded-full h-2 overflow-hidden">
@@ -43,7 +43,9 @@ const TauriUpdateBannerInner: React.FC = () => {
                 <span className="text-xs">{progress}%</span>
               </div>
             </div>
-          )}
+          ) : error ? (
+            <p className="text-yellow-200 text-xs mt-0.5">更新失败：{error}</p>
+          ) : null}
         </div>
       </div>
       
@@ -72,12 +74,6 @@ const TauriUpdateBannerInner: React.FC = () => {
           </span>
         )}
       </div>
-      
-      {error && (
-        <div className="absolute top-full left-0 right-0 bg-red-500 text-white px-4 py-2 text-xs">
-          更新失败：{error}
-        </div>
-      )}
     </div>
   );
 };
