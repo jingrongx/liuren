@@ -180,27 +180,11 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Generate Tauri signing key (if not exists)
-        id: generate-key
-        if: ${{ secrets.TAURI_PRIVATE_KEY == '' }}
-        shell: pwsh
-        run: |
-          # 检查是否已有密钥
-          if ("$env:TAURI_PRIVATE_KEY" -eq "" -or $null -eq $env:TAURI_PRIVATE_KEY) {
-            Write-Host "::warning::未检测到 TAURI_PRIVATE_KEY，将使用无签名模式构建（自动更新功能将不可用）"
-            Write-Host "如需启用自动更新，请在 GitHub Secrets 中添加 TAURI_PRIVATE_KEY"
-            Write-Host "生成方式：在本地运行 npx tauri signer generate -w ~/.tauri/myapp.key"
-            echo "has_key=false" >> $env:GITHUB_OUTPUT
-          } else {
-            echo "has_key=true" >> $env:GITHUB_OUTPUT
-          }
-
       - name: Build Tauri app (Windows)
         run: npm run tauri:build
         env:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-        continue-on-error: false
 
       - name: Get version
         id: get-version
