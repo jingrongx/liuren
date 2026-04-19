@@ -29,9 +29,13 @@ export function useTauriUpdater() {
           body: update.body,
         });
         setUpdateAvailable(true);
+      } else {
+        setUpdateAvailable(false);
+        setUpdateInfo(null);
       }
     } catch (err) {
-      console.warn('检查更新跳过:', err);
+      console.error('检查更新失败:', err);
+      setError(err instanceof Error ? err.message : '检查更新失败');
     }
   };
 
@@ -46,25 +50,35 @@ export function useTauriUpdater() {
       const { check } = await import('@tauri-apps/plugin-updater');
       const update = await check();
       if (update) {
-        const progressInterval = setInterval(() => {
+        const interval = setInterval(() => {
           setProgress(prev => {
-            if (prev >= 90) {
-              clearInterval(progressInterval);
+            if (prev >= 95) {
+              clearInterval(interval);
               return prev;
             }
-            return prev + Math.random() * 10;
+            return prev + Math.random() * 5;
           });
-        }, 200);
+        }, 300);
 
-        await update.downloadAndInstall(() => {});
+        await update.downloadAndInstall();
 
-        clearInterval(progressInterval);
+        clearInterval(interval);
         setProgress(100);
 
         alert('更新下载完成，应用将重启以完成安装');
 
         if ('__TAURI__' in window) {
-          await (window as any).__TAURI__.process.relaunch();
+          try {
+            const tauri = (window as any).__TAURI__;
+            if (tauri && tauri.process && tauri.process.relaunch) {
+              await tauri.process.relaunch();
+            } else {
+              window.location.reload();
+            }
+          } catch (relaunchError) {
+            console.error('重启失败:', relaunchError);
+            window.location.reload();
+          }
         } else {
           window.location.reload();
         }
@@ -72,6 +86,8 @@ export function useTauriUpdater() {
     } catch (err) {
       console.error('更新安装失败:', err);
       setError(err instanceof Error ? err.message : '更新安装失败');
+      setDownloading(false);
+    } finally {
       setDownloading(false);
     }
   };

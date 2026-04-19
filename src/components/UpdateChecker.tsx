@@ -49,7 +49,8 @@ const UpdateChecker: React.FC = () => {
           setDownloadUrl(data.html_url);
           setGhproxyUrl(data.html_url);
         }
-      } catch {
+      } catch (err) {
+        console.error('检查更新失败:', err);
         setError(true);
       } finally {
         setChecking(false);
@@ -101,6 +102,22 @@ const UpdateChecker: React.FC = () => {
     setTimeout(() => window.location.reload(), 300);
   };
 
+  const handleDownload = async (url: string, event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    try {
+      // 尝试使用 window.open 打开下载链接
+      const newWindow = window.open(url, '_blank');
+      if (!newWindow) {
+        // 如果弹出窗口被阻止，直接设置 location.href
+        window.location.href = url;
+      }
+    } catch (error) {
+      console.error('下载打开失败:', error);
+      // 失败时直接跳转
+      window.location.href = url;
+    }
+  };
+
   return (
     <>
       {showBanner && !isTauri && (
@@ -116,6 +133,7 @@ const UpdateChecker: React.FC = () => {
               href={ghproxyUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={(e) => handleDownload(ghproxyUrl, e)}
               className="inline-flex items-center gap-1 px-3 py-1 bg-white/20 hover:bg-white/30 rounded text-xs font-medium transition-colors"
             >
               <Download className="w-3 h-3" />
@@ -125,6 +143,7 @@ const UpdateChecker: React.FC = () => {
               href={downloadUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={(e) => handleDownload(downloadUrl, e)}
               className="inline-flex items-center gap-1 px-3 py-1 bg-white/20 hover:bg-white/30 rounded text-xs font-medium transition-colors"
             >
               <ExternalLink className="w-3 h-3" />
