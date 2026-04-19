@@ -75,8 +75,7 @@ function getCellPos(layer: 'outer' | 'middle' | 'inner', side: string, idx: numb
 
 const TianDiPanSquare: React.FC<TianDiPanSquareProps> = ({ diPan, tianPan, tianJiangArr, sanChuan }) => {
   const GRID = 8;
-  const CELL = 55;
-  const SIZE = GRID * CELL;
+  const CELL_SIZE = '12.5%';
 
   const getIndexByZhi = (zhi: string): number => DI_ZHI.indexOf(zhi);
 
@@ -85,20 +84,20 @@ const TianDiPanSquare: React.FC<TianDiPanSquareProps> = ({ diPan, tianPan, tianJ
       const zhiIndex = getIndexByZhi(zhi);
       let text = '';
       let color = '#374151';
-      let fontSize = 14;
+      let fontSize = '14px';
       let fontWeight: string = '500';
       let label = '';
 
       if (layerType === 'outer') {
         text = tianJiangArr[zhiIndex] || '';
         color = '#7c3aed';
-        fontSize = 12;
+        fontSize = '12px';
         fontWeight = '600';
       } else if (layerType === 'middle') {
         text = tianPan[zhiIndex] || '';
         const wx = ZHI_WU_XING[text] || '';
         color = getWuXingColor(wx);
-        fontSize = 16;
+        fontSize = '16px';
         fontWeight = 'bold';
         if (text && isSanChuanCheck(text, sanChuan)) {
           label = getSanChuanLabel(text, sanChuan);
@@ -107,7 +106,7 @@ const TianDiPanSquare: React.FC<TianDiPanSquareProps> = ({ diPan, tianPan, tianJ
         text = diPan[zhiIndex] || zhi;
         const wx = ZHI_WU_XING[text] || '';
         color = getWuXingColor(wx);
-        fontSize = 14;
+        fontSize = '14px';
         fontWeight = '600';
       }
 
@@ -120,14 +119,14 @@ const TianDiPanSquare: React.FC<TianDiPanSquareProps> = ({ diPan, tianPan, tianJ
           key={`${layerType}-${zhi}`}
           style={{
             position: 'absolute',
-            left: col * CELL,
-            top: row * CELL,
-            width: CELL,
-            height: CELL,
+            left: `${col * 12.5}%`,
+            top: `${row * 12.5}%`,
+            width: CELL_SIZE,
+            height: CELL_SIZE,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: `${fontSize}px`,
+            fontSize: fontSize,
             fontWeight,
             color,
             zIndex: 10,
@@ -159,25 +158,25 @@ const TianDiPanSquare: React.FC<TianDiPanSquareProps> = ({ diPan, tianPan, tianJ
   ];
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-4 border-2 border-indigo-200">
+    <div className="bg-white rounded-xl shadow-lg p-4 border-2 border-indigo-200 w-full max-w-md mx-auto">
       <h3 className="text-xl font-bold text-gray-800 mb-2 text-center">天地盘</h3>
       <p className="text-sm text-gray-500 text-center mb-3">外：天将 ｜ 中：天盘 ｜ 内：地盘</p>
 
       <div className="flex justify-center">
-        <div style={{ width: SIZE, height: SIZE, position: 'relative' }}>
+        <div style={{ width: '100%', aspectRatio: '1/1', position: 'relative' }}>
           {Array.from({ length: GRID + 1 }, (_, i) => (
             <div key={`h-${i}`} style={{
               position: 'absolute',
-              left: 0, top: i * CELL,
-              width: SIZE, height: '1px',
+              left: 0, top: `${i * 12.5}%`,
+              width: '100%', height: '1px',
               backgroundColor: '#d1d5db'
             }} />
           ))}
           {Array.from({ length: GRID + 1 }, (_, i) => (
             <div key={`v-${i}`} style={{
               position: 'absolute',
-              left: i * CELL, top: 0,
-              width: '1px', height: SIZE,
+              left: `${i * 12.5}%`, top: 0,
+              width: '1px', height: '100%',
               backgroundColor: '#d1d5db'
             }} />
           ))}
@@ -185,9 +184,9 @@ const TianDiPanSquare: React.FC<TianDiPanSquareProps> = ({ diPan, tianPan, tianJ
           {ringBorders.map(({ start, end }) => (
             <div key={`ring-${start}`} style={{
               position: 'absolute',
-              left: start * CELL, top: start * CELL,
-              width: (end - start + 1) * CELL,
-              height: (end - start + 1) * CELL,
+              left: `${start * 12.5}%`, top: `${start * 12.5}%`,
+              width: `${(end - start + 1) * 12.5}%`,
+              height: `${(end - start + 1) * 12.5}%`,
               border: '1px solid #9ca3af',
               pointerEvents: 'none',
               zIndex: 2
