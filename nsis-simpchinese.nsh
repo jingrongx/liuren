@@ -1,4 +1,4 @@
-LangString welcomeSetup ${LANG_SIMPCHINESE} "欢迎使用 六壬占卜 安装向导"
+﻿LangString welcomeSetup ${LANG_SIMPCHINESE} "欢迎使用 六壬占卜 安装向导"
 LangString welcomeUnSetup ${LANG_SIMPCHINESE} "欢迎使用 六壬占卜 卸载向导"
 LangString uninstallApp ${LANG_SIMPCHINESE} "正在卸载 六壬占卜..."
 LangString sectionUninstall ${LANG_SIMPCHINESE} "卸载 六壬占卜"
