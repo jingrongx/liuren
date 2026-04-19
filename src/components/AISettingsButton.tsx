@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, X, AlertTriangle, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { openUrl } from '../lib/openUrl';
 
 interface AIConfig {
   apiKey: string;
@@ -151,6 +152,7 @@ const AISettingsButton: React.FC = () => {
                     href="https://platform.deepseek.com/"
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={(e) => { e.preventDefault(); openUrl('https://platform.deepseek.com/'); }}
                     className="text-purple-600 hover:underline"
                   >
                     DeepSeek 平台

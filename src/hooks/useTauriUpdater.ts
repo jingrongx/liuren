@@ -6,7 +6,7 @@ interface UpdateInfo {
   body: string;
 }
 
-const isTauri = () => '__TAURI__' in window || '__TAURI_INTERNALS__' in window;
+export const isTauri = () => '__TAURI__' in window || '__TAURI_INTERNALS__' in window;
 
 export function useTauriUpdater() {
   const [updateAvailable, setUpdateAvailable] = useState(false);

@@ -17,6 +17,7 @@
     "@capacitor/android": "^8.3.0",
     "@capacitor/cli": "^8.3.0",
     "@capacitor/core": "^8.3.0",
+    "@tauri-apps/plugin-opener": "^2.5.3",
     "clsx": "^2.1.1",
     "lucide-react": "^0.511.0",
     "lunar-javascript": "^1.6.12",

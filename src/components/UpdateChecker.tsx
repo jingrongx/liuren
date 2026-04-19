@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Download, ExternalLink, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { openUrl } from '../lib/openUrl';
 
 const CURRENT_VERSION = __APP_VERSION__;
 
@@ -21,11 +22,7 @@ const UpdateChecker: React.FC = () => {
   const isTauri = '__TAURI__' in window || '__TAURI_INTERNALS__' in window;
 
   useEffect(() => {
-    if (isTauri) {
-      // Tauri 环境下使用专门的 updater hook，这里只做基本检查
-      setChecking(false);
-      return;
-    }
+    // Tauri 环境下也进行版本检查，以便显示版本信息
 
     const checkUpdate = async () => {
       try {
@@ -105,16 +102,19 @@ const UpdateChecker: React.FC = () => {
   const handleDownload = async (url: string, event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     try {
-      // 尝试使用 window.open 打开下载链接
-      const newWindow = window.open(url, '_blank');
-      if (!newWindow) {
-        // 如果弹出窗口被阻止，直接设置 location.href
-        window.location.href = url;
-      }
+      await openUrl(url);
     } catch (error) {
       console.error('下载打开失败:', error);
-      // 失败时直接跳转
-      window.location.href = url;
+      // 失败时回退到传统方法
+      try {
+        const newWindow = window.open(url, '_blank');
+        if (!newWindow) {
+          window.location.href = url;
+        }
+      } catch (fallbackError) {
+        console.error('回退方法也失败:', fallbackError);
+        window.location.href = url;
+      }
     }
   };
 
